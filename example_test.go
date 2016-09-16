@@ -2,7 +2,7 @@ package gonfig_test
 
 import (
 	"fmt"
-	. "github.com/Nomon/gonfig"
+	. "github.com/taybin/gonfig"
 	"os"
 )
 

@@ -2,9 +2,9 @@ package gonfig_test
 
 import (
 	"fmt"
-	. "github.com/Nomon/gonfig"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/taybin/gonfig"
 )
 
 var _ = Describe("UrlConfig", func() {
