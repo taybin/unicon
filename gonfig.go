@@ -3,22 +3,30 @@ package gonfig
 
 import (
 	"fmt"
+	"github.com/spf13/cast"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
-// The main Configurable interface
-// Also the hierarcial configuration (Config) implements it.
+// The main Configurable interface Also the hierarcial configuration (Config) implements it.
 type Configurable interface {
-	// Get a configuration variable from config
-	Get(string) string
+	Get(string) interface{}
+	GetString(key string) string
+	GetBool(key string) bool
+	GetInt(key string) int
+	GetInt64(key string) int64
+	GetFloat64(key string) float64
+	GetTime(key string) time.Time
+	GetDuration(key string) time.Duration
+
 	// Set a variable, nil to reset key
-	Set(string, string)
+	Set(string, interface{})
 	// Reset the config data to passed data, if nothing is given set it to zero value
-	Reset(...map[string]string)
+	Reset(...map[string]interface{})
 	// Return a map of all variables
-	All() map[string]string
+	All() map[string]interface{}
 }
 
 // A Configurable that can be loaded
@@ -72,9 +80,9 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Gonfig {
 	}
 
 	return &Gonfig{
-		initial,
-		make(map[string]Configurable),
-		defaults[0],
+		Configurable: initial,
+		Configs:      make(map[string]Configurable),
+		Defaults:     defaults[0],
 	}
 }
 
@@ -85,7 +93,7 @@ func (self *Gonfig) Marshal(target interface{}) error {
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 
-		v := strings.TrimSpace(self.Get(field.Tag.Get("gonfig")))
+		v := strings.TrimSpace(self.GetString(field.Tag.Get("gonfig")))
 		if v == "" {
 			continue
 		}
@@ -111,8 +119,8 @@ func (self *Gonfig) Marshal(target interface{}) error {
 
 // Resets all configs with the provided data, if no data is provided empties all stores
 // Never touches the Defaults, to reset Defaults use Config.Defaults().Reset()
-func (self *Gonfig) Reset(datas ...map[string]string) {
-	var data map[string]string
+func (self *Gonfig) Reset(datas ...map[string]interface{}) {
+	var data map[string]interface{}
 	if len(datas) > 0 {
 		data = datas[0]
 	}
@@ -148,24 +156,56 @@ func (self *Gonfig) Use(name string, config ...Configurable) Configurable {
 	return self.Configs[name]
 }
 
+func (self *Gonfig) GetString(key string) string {
+	return cast.ToString(self.Get(key))
+}
+
+func (self *Gonfig) GetBool(key string) bool {
+	return cast.ToBool(self.Get(key))
+}
+
+func (self *Gonfig) GetInt(key string) int {
+	return cast.ToInt(self.Get(key))
+}
+
+func (self *Gonfig) GetInt64(key string) int64 {
+	return cast.ToInt64(self.Get(key))
+}
+
+func (self *Gonfig) GetFloat64(key string) float64 {
+	return cast.ToFloat64(self.Get(key))
+}
+
+func (self *Gonfig) GetTime(key string) time.Time {
+	return cast.ToTime(self.Get(key))
+}
+
+func (self *Gonfig) GetDuration(key string) time.Duration {
+	return cast.ToDuration(self.Get(key))
+}
+
 // Gets the key from first store that it is found from, checks Defaults
-func (self *Gonfig) Get(key string) string {
+func (self *Gonfig) Get(key string) interface{} {
 	// override from out values
-	if value := self.Configurable.Get(key); value != "" {
+	if value := self.Configurable.Get(key); value != nil {
 		return value
 	}
-	// go through all in insert order untill key is found
+	// go through all in insert order until key is found
 	for _, config := range self.Configs {
-		if value := config.Get(key); value != "" {
+		if value := config.Get(key); value != nil {
 			return value
 		}
 	}
 	// if not found check the defaults as fallback
-	if value := self.Defaults.Get(key); value != "" {
+	if value := self.Defaults.Get(key); value != nil {
 		return value
 	}
 
-	return ""
+	return nil
+}
+
+func (self *Gonfig) Set(key string, value interface{}) {
+	self.Configurable.Set(key, value)
 }
 
 // Save config it is of type WritableConfig, otherwise does nothing.
@@ -221,25 +261,25 @@ func (self *Gonfig) Load() error {
 // Config.All()["a"] == "1".
 // Config.Get("a") == "1".
 // Config.Use("b".).Get("a") == "2".
-func (self *Gonfig) All() map[string]string {
-	values := make(map[string]string)
+func (self *Gonfig) All() map[string]interface{} {
+	values := make(map[string]interface{})
 	// put defaults in values
 	for key, value := range self.Defaults.All() {
-		if values[key] == "" {
+		if values[key] == nil {
 			values[key] = value
 		}
 	}
 	// put config values on top of them
 	for _, config := range self.Configs {
 		for key, value := range config.All() {
-			if values[key] == "" {
+			if values[key] == nil {
 				values[key] = value
 			}
 		}
 	}
 	// put overrides from self on top of all
 	for key, value := range self.Configurable.All() {
-		if values[key] == "" {
+		if values[key] == nil {
 			values[key] = value
 		}
 	}

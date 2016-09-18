@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"io/ioutil"
+	"strings"
 )
 
 type JsonConfig struct {
@@ -13,7 +13,7 @@ type JsonConfig struct {
 	Path string
 }
 
-func unmarshalJsonSegment(jsonSegment map[string]interface{}, segmentPath string, output map[string]string) {
+func unmarshalJsonSegment(jsonSegment map[string]interface{}, segmentPath string, output map[string]interface{}) {
 	if segmentPath != "" {
 		segmentPath += ":"
 	}
@@ -36,13 +36,13 @@ func unmarshalJsonSegment(jsonSegment map[string]interface{}, segmentPath string
 	}
 }
 
-func unmarshalJson(bytes []byte) (map[string]string, error) {
+func unmarshalJson(bytes []byte) (map[string]interface{}, error) {
 	out := make(map[string]interface{})
 	if err := json.Unmarshal(bytes, &out); err != nil {
 		return nil, err
 	}
 
-	var output map[string]string = make(map[string]string)
+	output := make(map[string]interface{})
 	unmarshalJsonSegment(out, "", output)
 
 	return output, nil
@@ -63,7 +63,7 @@ func NewJsonConfig(path string, cfg ...Configurable) WritableConfig {
 // Attempts to load the json configuration at JsonConfig.Path
 // and Set them into the underlaying Configurable
 func (self *JsonConfig) Load() (err error) {
-	var data []byte = make([]byte, 1024)
+	data := make([]byte, 1024)
 	if data, err = ioutil.ReadFile(self.Path); err != nil {
 		return err
 	}

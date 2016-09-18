@@ -2,6 +2,7 @@ package gonfig_test
 
 import (
 	"fmt"
+	. "github.com/ndeanNovetta/m-go"
 	. "github.com/taybin/gonfig"
 	"os"
 )
@@ -16,7 +17,7 @@ func ExampleHierarchy() {
 
 func ExampleDefaults() {
 	conf := NewConfig(nil) // root config
-	conf.Defaults.Reset(map[string]string{
+	conf.Defaults.Reset(M{
 		"test_default":   "123",
 		"test_default_b": "321",
 	})

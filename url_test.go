@@ -24,6 +24,6 @@ var _ = Describe("UrlConfig", func() {
 		Expect(err).ToNot(HaveOccurred())
 		err := cfg.Load()
 		Expect(err).ToNot(HaveOccurred())
-		Expect(cfg.Get("test")).To(Equal("abc"))
+		Expect(cfg.GetString("test")).To(Equal("abc"))
 	})
 })

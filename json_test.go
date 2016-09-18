@@ -85,7 +85,10 @@ var _ = Describe("JsonConfig", func() {
 			cfg.Use("config_b", NewMemoryConfig())
 			cfg.Use("config_a").Set("config_a_var_a", "conf_a")
 			cfg.Use("config_b").Set("config_b_var_a", "conf_b")
-			jsonConf := &JsonConfig{cfg, "./config.json"}
+			jsonConf := &JsonConfig{
+				Configurable: cfg,
+				Path:         "./config.json",
+			}
 			err := jsonConf.Save()
 			Expect(err).ToNot(HaveOccurred())
 			jsonConf2 := NewJsonConfig("./config.json", cfg)

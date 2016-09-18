@@ -1,9 +1,11 @@
 package gonfig_test
 
 import (
+	. "github.com/ndeanNovetta/m-go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/taybin/gonfig"
+	"time"
 )
 
 var _ = Describe("Gonfig", func() {
@@ -19,33 +21,40 @@ var _ = Describe("Gonfig", func() {
 				memconf := NewMemoryConfig()
 				memconf.Set("a", "b")
 				cfg.Defaults.Reset(memconf.All())
-				Expect(cfg.Get("a")).To(Equal("b"))
-				Expect(cfg.Defaults.Get("a")).To(Equal("b"))
+				Expect(cfg.GetString("a")).To(Equal("b"))
+				Expect(cfg.Defaults.GetString("a")).To(Equal("b"))
 			})
 		})
 		It("Should use memory store to set and get by default", func() {
 			cfg.Set("test_a", "10")
-			Ω(cfg.Get("test_a")).Should(Equal(cfg.Get("test_a")))
+			Expect(cfg.GetString("test_a")).Should(Equal(cfg.GetString("test_a")))
 		})
 		It("Should return nil when key is non-existing", func() {
-			Expect(cfg.Get("some-key")).To(Equal(""))
+			Expect(cfg.Get("some-key")).To(BeNil())
+			Expect(cfg.GetString("some-key")).To(Equal(""))
+			Expect(cfg.GetBool("some-key")).To(Equal(false))
+			Expect(cfg.GetInt("some-key")).To(Equal(0))
+			Expect(cfg.GetInt64("some-key")).To(Equal(int64(0)))
+			Expect(cfg.GetFloat64("some-key")).To(Equal(0.0))
+			Expect(cfg.GetTime("some-key")).To(BeTemporally("==", time.Time{}))
+			Expect(cfg.GetDuration("some-key")).To(Equal(time.Duration(0)))
 		})
 		It("Should return and use Defaults", func() {
 			cfg.Defaults.Set("test_var", "abc")
-			Ω(cfg.Defaults.Get("test_var")).Should(Equal("abc"))
+			Expect(cfg.Defaults.Get("test_var")).Should(Equal("abc"))
 			cfg.Set("test_var", "bca")
-			Ω(cfg.Defaults.Get("test_var")).Should(Equal("abc"), "Setting to memory should not override defaults")
-			Ω(cfg.Get("test_var")).Should(Equal("bca"), "Set to config should set in memory and use it over defaults")
+			Expect(cfg.Defaults.Get("test_var")).Should(Equal("abc"), "Setting to memory should not override defaults")
+			Expect(cfg.Get("test_var")).Should(Equal("bca"), "Set to config should set in memory and use it over defaults")
 		})
 
 		It("Should reset everything else but Defaults() on reset", func() {
 			cfg.Defaults.Set("test_var", "abc")
-			Ω(cfg.Defaults.Get("test_var")).Should(Equal("abc"))
+			Expect(cfg.Defaults.Get("test_var")).Should(Equal("abc"))
 			cfg.Set("test_var", "bca")
-			Ω(cfg.Defaults.Get("test_var")).Should(Equal("abc"), "Setting to memory should not override defaults")
-			Ω(cfg.Get("test_var")).Should(Equal("bca"), "Set to config should set in memory and use it over defaults")
+			Expect(cfg.Defaults.Get("test_var")).Should(Equal("abc"), "Setting to memory should not override defaults")
+			Expect(cfg.Get("test_var")).Should(Equal("bca"), "Set to config should set in memory and use it over defaults")
 			cfg.Reset()
-			Ω(cfg.Get("test_var")).Should(Equal("abc"), "Set to config should set in memory and use it over defaults")
+			Expect(cfg.Get("test_var")).Should(Equal("abc"), "Set to config should set in memory and use it over defaults")
 		})
 
 		It("Should load & save all relevant sources", func() {
@@ -66,35 +75,35 @@ var _ = Describe("Gonfig", func() {
 		It("Should return all values from all storages", func() {
 			cfg.Use("mem1", NewMemoryConfig())
 			cfg.Use("mem2", NewMemoryConfig())
-			cfg.Set("asd", "123456")
-			cfg.Use("mem1").Set("das", "654321")
-			cfg.Use("mem2").Set("sad", "654321")
+			cfg.Set("asd", 123456)
+			cfg.Use("mem1").Set("das", 654321)
+			cfg.Use("mem2").Set("sad", 654321)
 			i := 0
 			for key, value := range cfg.All() {
-				Expect(cfg.Get(key)).To(Equal(value))
+				Expect(cfg.GetInt(key)).To(Equal(value))
 				i++
 			}
-			Expect(i == 3).To(BeTrue())
+			Expect(i).To(Equal(3))
 		})
 		It("Should be able to use Config objects in the hierarchy", func() {
 			cfg.Use("test", NewConfig(nil))
 			cfg.Set("test_123", "321test")
-			Expect(cfg.Use("test").Get("test_123")).To(Equal(""))
+			Expect(cfg.Use("test").GetString("test_123")).To(Equal(""))
 		})
-		It("should prefere using defaults deeprer in hierarchy (reverse order to normal fetch.)", func() {
+		It("should prefer using defaults deeper in hierarchy (reverse order to normal fetch.)", func() {
 			deeper := NewConfig(nil)
-			deeper.Defaults.Reset(map[string]string{
+			deeper.Defaults.Reset(M{
 				"test":  "123",
 				"testb": "321",
 			})
 			cfg.Use("test", deeper)
-			cfg.Defaults.Reset(map[string]string{
+			cfg.Defaults.Reset(M{
 				"test": "333",
 			})
-			Expect(cfg.Get("test")).To(Equal("123"))
-			Expect(cfg.Get("testb")).To(Equal("321"))
+			Expect(cfg.GetString("test")).To(Equal("123"))
+			Expect(cfg.GetString("testb")).To(Equal("321"))
 			cfg.Set("testb", "1")
-			Expect(cfg.Get("testb")).To(Equal("1"))
+			Expect(cfg.GetString("testb")).To(Equal("1"))
 		})
 	})
 })
