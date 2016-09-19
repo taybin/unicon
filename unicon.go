@@ -93,7 +93,7 @@ func (self *Unicon) Marshal(target interface{}) error {
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 
-		v := strings.TrimSpace(self.GetString(field.Tag.Get("gonfig")))
+		v := strings.TrimSpace(self.GetString(field.Tag.Get("unicon")))
 		if v == "" {
 			continue
 		}

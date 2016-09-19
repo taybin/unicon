@@ -3,44 +3,40 @@ package unicon
 import (
 	"flag"
 	"github.com/spf13/pflag"
-	"log"
-	"os"
 	"strings"
 )
 
-// PflagConfig can be used to read arguments in the posix flag style
+// FlagSetConfig can be used to read arguments in the posix flag style
 // into the underlaying Configurable
-type PflagConfig struct {
+type FlagSetConfig struct {
 	Configurable
 	Prefix     string
 	namespaces []string
+	fs         *pflag.FlagSet
 }
 
-// NewPflagConfig creates a new PflagConfig and returns it as a ReadableConfig
-func NewPflagConfig(prefix string, namespaces ...string) ReadableConfig {
+// NewFlagSetConfig creates a new FlagSetConfig and returns it as a ReadableConfig
+func NewFlagSetConfig(fs *pflag.FlagSet, prefix string, namespaces ...string) ReadableConfig {
 	// put in lowercase
 	var lowered []string
 	for _, ns := range namespaces {
 		lowered = append(lowered, strings.ToLower(ns))
 	}
 
-	cfg := &PflagConfig{
+	cfg := &FlagSetConfig{
 		Configurable: NewMemoryConfig(),
 		Prefix:       prefix,
 		namespaces:   lowered,
+		fs:           fs,
 	}
 	return cfg
 }
 
 // Load loads all the variables from argv to the underlaying Configurable.
-// If a Prefix is provided for PflagConfig then keys are imported with the Prefix removed
+// If a Prefix is provided for FlagSetConfig then keys are imported with the Prefix removed
 // so --test.asd=1 with Prefix 'test.' imports "asd" with value of 1
-func (pc *PflagConfig) Load() (err error) {
-	flagset := pflag.NewFlagSet("arguments", pflag.ContinueOnError)
-	log.Println(os.Args)
-	flagset.Parse(os.Args)
-
-	flagset.VisitAll(func(f *pflag.Flag) {
+func (pc *FlagSetConfig) Load() (err error) {
+	pc.fs.VisitAll(func(f *pflag.Flag) {
 		name := f.Name
 		if pc.Prefix != "" && strings.HasPrefix(f.Name, pc.Prefix) {
 			name = strings.Replace(name, pc.Prefix, "", 1)
