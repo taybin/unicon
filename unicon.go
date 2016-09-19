@@ -1,4 +1,4 @@
-// package unicon provides tools for managing hierarcial configuration from multiple sources
+// Package unicon provides tools for managing hierarcial configuration from multiple sources
 package unicon
 
 import (
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// The main Configurable interface Also the hierarcial configuration (Config) implements it.
+// Configurable is the main interface.  Also the hierarcial configuration (Config) implements it.
 type Configurable interface {
 	Get(string) interface{}
 	GetString(key string) string
@@ -28,14 +28,14 @@ type Configurable interface {
 	All() map[string]interface{}
 }
 
-// A Configurable that can be loaded
+// ReadableConfig is a Configurable that can be loaded
 type ReadableConfig interface {
 	Configurable
 	// Load the configuration
 	Load() error
 }
 
-// A Configurable that can be Loaded & Saved
+// WritableConfig is a Configurable that can be Loaded & Saved
 type WritableConfig interface {
 	ReadableConfig
 	// Save configuration
@@ -52,7 +52,7 @@ type Config interface {
 	Use(name string, config ...Configurable) Configurable
 }
 
-// The Hierarchical Config that can be used to mount other configs that are searched for keys by Get
+// Unicon is the Hierarchical Config that can be used to mount other configs that are searched for keys by Get
 type Unicon struct {
 	// Overrides, these are checked before Configs are iterated for key
 	Configurable
@@ -135,7 +135,7 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 	return uni.Configs[name]
 }
 
-// Gets the key from first store that it is found from, checks Defaults
+// Get gets the key from first store that it is found from, checks Defaults
 func (uni *Unicon) Get(key string) interface{} {
 	// override from out values
 	if value := uni.Configurable.Get(key); value != nil {
