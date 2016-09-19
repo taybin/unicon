@@ -296,3 +296,10 @@ func trimsplit(s, sep string) []string {
 	}
 	return trimmed
 }
+
+// Debug prints out simple list of keys as returned by All()
+func (uni *Unicon) Debug() {
+	for key := range uni.All() {
+		fmt.Printf("%s = %s\n", key, uni.GetString(key))
+	}
+}
