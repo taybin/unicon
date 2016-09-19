@@ -58,8 +58,8 @@ var _ = Describe("Unicon", func() {
 		})
 
 		It("Should load & save all relevant sources", func() {
-			cfg.Use("json1", NewJsonConfig("./config_test_1.json"))
-			cfg.Use("json2", NewJsonConfig("./config_test_2.json"))
+			cfg.Use("json1", NewJSONConfig("./config_test_1.json"))
+			cfg.Use("json2", NewJSONConfig("./config_test_2.json"))
 			cfg.Use("json2").Set("asd", "123")
 			cfg.Use("json1").Set("asd", "321")
 			err := cfg.Save()

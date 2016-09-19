@@ -5,18 +5,18 @@ import (
 	"net/http"
 )
 
-type UrlConfig struct {
+type URLConfig struct {
 	Configurable
 	url string
 }
 
 // Returns a new Configurable backed by JSON at url
-func NewUrlConfig(url string) ReadableConfig {
-	return &UrlConfig{NewMemoryConfig(), url}
+func NewURLConfig(url string) ReadableConfig {
+	return &URLConfig{NewMemoryConfig(), url}
 }
 
-func (self *UrlConfig) Load() error {
-	resp, err := http.Get(self.url)
+func (uc *URLConfig) Load() error {
+	resp, err := http.Get(uc.url)
 	if err != nil {
 		return err
 	}
@@ -25,10 +25,10 @@ func (self *UrlConfig) Load() error {
 	if err != nil {
 		return err
 	}
-	out, err := unmarshalJson(body)
+	out, err := unmarshalJSON(body)
 	if err != nil {
 		return err
 	}
-	self.Reset(out)
+	uc.Reset(out)
 	return nil
 }

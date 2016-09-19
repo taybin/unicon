@@ -27,20 +27,20 @@ func ExampleDefaults() {
 	// Output: 333 321
 }
 
-func ExampleSaveToJson() {
+func ExampleSaveToJSON() {
 	conf := NewConfig(nil)
 	conf.Set("some", "variable")
-	jsonconf := NewJsonConfig("./config.json", conf)
+	jsonconf := NewJSONConfig("./config.json", conf)
 	jsonconf.Save()
 	// OR:
-	// jsonconf := NewJsonConf("./config")
+	// jsonconf := NewJSONConf("./config")
 	// jsonconf.Reset(conf.All());
 	// jsonconf.Save()
 
 	if err := jsonconf.Save(); err != nil {
 		fmt.Println("Error saving config", err)
 	}
-	jsonconf2 := NewJsonConfig("./config.json")
+	jsonconf2 := NewJSONConfig("./config.json")
 	if err := jsonconf2.Load(); err != nil {
 		fmt.Println("Error loading config", err)
 	}

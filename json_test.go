@@ -6,14 +6,14 @@ import (
 	. "github.com/taybin/unicon"
 )
 
-var _ = Describe("JsonConfig", func() {
+var _ = Describe("JSONConfig", func() {
 	var (
 		err error
 		cfg WritableConfig
 	)
 
 	BeforeEach(func() {
-		cfg = NewJsonConfig("./config_valid.json")
+		cfg = NewJSONConfig("./config_valid.json")
 		err = cfg.Load()
 	})
 
@@ -49,7 +49,7 @@ var _ = Describe("JsonConfig", func() {
 
 	Context("When config fails to marshal", func() {
 		BeforeEach(func() {
-			cfg = NewJsonConfig("./config_invalid.json")
+			cfg = NewJSONConfig("./config_invalid.json")
 			err = cfg.Load()
 		})
 		It("should return a functional config", func() {
@@ -65,7 +65,7 @@ var _ = Describe("JsonConfig", func() {
 
 	Context("When the JSON config does not exist", func() {
 		BeforeEach(func() {
-			cfg = NewJsonConfig("./config_nonexisting.json")
+			cfg = NewJSONConfig("./config_nonexisting.json")
 			err = cfg.Load()
 		})
 		It("should return a functional config", func() {
@@ -85,13 +85,13 @@ var _ = Describe("JsonConfig", func() {
 			cfg.Use("config_b", NewMemoryConfig())
 			cfg.Use("config_a").Set("config_a_var_a", "conf_a")
 			cfg.Use("config_b").Set("config_b_var_a", "conf_b")
-			jsonConf := &JsonConfig{
+			jsonConf := &JSONConfig{
 				Configurable: cfg,
 				Path:         "./config.json",
 			}
 			err := jsonConf.Save()
 			Expect(err).ToNot(HaveOccurred())
-			jsonConf2 := NewJsonConfig("./config.json", cfg)
+			jsonConf2 := NewJSONConfig("./config.json", cfg)
 			err = jsonConf2.Save()
 			Expect(err).ToNot(HaveOccurred())
 		})

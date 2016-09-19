@@ -87,13 +87,13 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 }
 
 // Marshal current configuration hierarchy into target using gonfig:
-func (self *Unicon) Marshal(target interface{}) error {
+func (uni *Unicon) Marshal(target interface{}) error {
 	value := reflect.Indirect(reflect.ValueOf(target))
 	typ := value.Type()
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 
-		v := strings.TrimSpace(self.GetString(field.Tag.Get("unicon")))
+		v := strings.TrimSpace(uni.GetString(field.Tag.Get("unicon")))
 		if v == "" {
 			continue
 		}
@@ -119,19 +119,19 @@ func (self *Unicon) Marshal(target interface{}) error {
 
 // Resets all configs with the provided data, if no data is provided empties all stores
 // Never touches the Defaults, to reset Defaults use Config.Defaults().Reset()
-func (self *Unicon) Reset(datas ...map[string]interface{}) {
+func (uni *Unicon) Reset(datas ...map[string]interface{}) {
 	var data map[string]interface{}
 	if len(datas) > 0 {
 		data = datas[0]
 	}
-	for _, value := range self.Configs {
+	for _, value := range uni.Configs {
 		if data != nil {
 			value.Reset(data)
 		} else {
 			value.Reset()
 		}
 	}
-	self.Configurable.Reset(data)
+	uni.Configurable.Reset(data)
 }
 
 // Use config as named config and return an already set and loaded config
@@ -144,68 +144,68 @@ func (self *Unicon) Reset(datas ...map[string]interface{}) {
 // or traverse the hierarchy and search for "key".
 // conf.Get("key").
 // conf.Use("name") returns a nil value for non existing config named "name".
-func (self *Unicon) Use(name string, config ...Configurable) Configurable {
-	if self.Configs == nil {
-		self.Configs = make(map[string]Configurable)
+func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
+	if uni.Configs == nil {
+		uni.Configs = make(map[string]Configurable)
 	}
 	if len(config) == 0 {
-		return self.Configs[name]
+		return uni.Configs[name]
 	}
-	self.Configs[name] = config[0]
-	LoadConfig(self.Configs[name])
-	return self.Configs[name]
+	uni.Configs[name] = config[0]
+	LoadConfig(uni.Configs[name])
+	return uni.Configs[name]
 }
 
-func (self *Unicon) GetString(key string) string {
-	return cast.ToString(self.Get(key))
+func (uni *Unicon) GetString(key string) string {
+	return cast.ToString(uni.Get(key))
 }
 
-func (self *Unicon) GetBool(key string) bool {
-	return cast.ToBool(self.Get(key))
+func (uni *Unicon) GetBool(key string) bool {
+	return cast.ToBool(uni.Get(key))
 }
 
-func (self *Unicon) GetInt(key string) int {
-	return cast.ToInt(self.Get(key))
+func (uni *Unicon) GetInt(key string) int {
+	return cast.ToInt(uni.Get(key))
 }
 
-func (self *Unicon) GetInt64(key string) int64 {
-	return cast.ToInt64(self.Get(key))
+func (uni *Unicon) GetInt64(key string) int64 {
+	return cast.ToInt64(uni.Get(key))
 }
 
-func (self *Unicon) GetFloat64(key string) float64 {
-	return cast.ToFloat64(self.Get(key))
+func (uni *Unicon) GetFloat64(key string) float64 {
+	return cast.ToFloat64(uni.Get(key))
 }
 
-func (self *Unicon) GetTime(key string) time.Time {
-	return cast.ToTime(self.Get(key))
+func (uni *Unicon) GetTime(key string) time.Time {
+	return cast.ToTime(uni.Get(key))
 }
 
-func (self *Unicon) GetDuration(key string) time.Duration {
-	return cast.ToDuration(self.Get(key))
+func (uni *Unicon) GetDuration(key string) time.Duration {
+	return cast.ToDuration(uni.Get(key))
 }
 
 // Gets the key from first store that it is found from, checks Defaults
-func (self *Unicon) Get(key string) interface{} {
+func (uni *Unicon) Get(key string) interface{} {
 	// override from out values
-	if value := self.Configurable.Get(key); value != nil {
+	if value := uni.Configurable.Get(key); value != nil {
 		return value
 	}
 	// go through all in insert order until key is found
-	for _, config := range self.Configs {
+	for _, config := range uni.Configs {
 		if value := config.Get(key); value != nil {
 			return value
 		}
 	}
 	// if not found check the defaults as fallback
-	if value := self.Defaults.Get(key); value != nil {
+	if value := uni.Defaults.Get(key); value != nil {
 		return value
 	}
 
 	return nil
 }
 
-func (self *Unicon) Set(key string, value interface{}) {
-	self.Configurable.Set(key, value)
+func (uni *Unicon) Set(key string, value interface{}) {
+	uni.Configurable.Set(key, value)
 }
 
 // Save config it is of type WritableConfig, otherwise does nothing.
@@ -221,13 +221,13 @@ func SaveConfig(config Configurable) error {
 }
 
 // Saves all mounted configurations in the hierarchy that implement the WritableConfig interface
-func (self *Unicon) Save() error {
-	for _, config := range self.Configs {
+func (uni *Unicon) Save() error {
+	for _, config := range uni.Configs {
 		if err := SaveConfig(config); err != nil {
 			return err
 		}
 	}
-	return SaveConfig(self.Configurable)
+	return SaveConfig(uni.Configurable)
 }
 
 // Load config it is of type ReadableConfig, otherwise does nothing.
@@ -242,10 +242,10 @@ func LoadConfig(config Configurable) error {
 }
 
 // calls Configurable.Load() on all Configurable objects in the hierarchy.
-func (self *Unicon) Load() error {
-	LoadConfig(self.Configurable)
-	LoadConfig(self.Defaults)
-	for _, config := range self.Configs {
+func (uni *Unicon) Load() error {
+	LoadConfig(uni.Configurable)
+	LoadConfig(uni.Defaults)
+	for _, config := range uni.Configs {
 		LoadConfig(config)
 	}
 	return nil
@@ -261,24 +261,24 @@ func (self *Unicon) Load() error {
 // Config.All()["a"] == "1".
 // Config.Get("a") == "1".
 // Config.Use("b".).Get("a") == "2".
-func (self *Unicon) All() map[string]interface{} {
+func (uni *Unicon) All() map[string]interface{} {
 	values := make(map[string]interface{})
 	// put defaults in values
-	for key, value := range self.Defaults.All() {
+	for key, value := range uni.Defaults.All() {
 		if values[key] == nil {
 			values[key] = value
 		}
 	}
 	// put config values on top of them
-	for _, config := range self.Configs {
+	for _, config := range uni.Configs {
 		for key, value := range config.All() {
 			if values[key] == nil {
 				values[key] = value
 			}
 		}
 	}
-	// put overrides from self on top of all
-	for key, value := range self.Configurable.All() {
+	// put overrides from uni on top of all
+	for key, value := range uni.Configurable.All() {
 		if values[key] == nil {
 			values[key] = value
 		}

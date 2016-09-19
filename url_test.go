@@ -7,7 +7,7 @@ import (
 	. "github.com/taybin/unicon"
 )
 
-var _ = Describe("UrlConfig", func() {
+var _ = Describe("URLConfig", func() {
 	var (
 		cfg Config
 		err error
@@ -16,7 +16,7 @@ var _ = Describe("UrlConfig", func() {
 		cfg = NewConfig(nil)
 	})
 	JustBeforeEach(func() {
-		cfg.Use("url", NewUrlConfig(fmt.Sprintf("http://127.0.0.1:%d", HttpPort)))
+		cfg.Use("url", NewURLConfig(fmt.Sprintf("http://127.0.0.1:%d", HttpPort)))
 	})
 
 	It("Should load config from URL", func() {

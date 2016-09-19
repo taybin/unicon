@@ -72,10 +72,10 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
   conf.Use("env", NewEnvConfig("MYAPP_"))
 
   // load local config file
-  conf.Use("local", NewJsonConfig("./config.json"))
+  conf.Use("local", NewJSONConfig("./config.json"))
 
   // load global config file over the network
-  conf.Use("global", NewUrlConfig("http://myapp.com/config/globals.json"))
+  conf.Use("global", NewURLConfig("http://myapp.com/config/globals.json"))
 
   // Set some Defaults, if conf.Get() fails to find from any of the above configurations it will fall back to these.
   conf.Defaults.Reset(map[string]interface{}{
@@ -88,7 +88,7 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
   log.Println("Database host resolved from hierarchy",conf.Get("database"))
 
   // Save the hierarchy to a JSON file:
-  jsonconf := NewJsonConf("./new_config.json")
+  jsonconf := NewJSONConf("./new_config.json")
   jsonconf.Reset(conf.All())
   if err := jsonconf.Save(); err != nil {
     log.Fatalln("Failed saving json config at path",jsonconf.Path,err)
@@ -99,7 +99,7 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
 
 ### Extending
 
-Extending Unicon is easy using the MemoryConfig or JsonConfig as a base, depending on the Save needs.
+Extending Unicon is easy using the MemoryConfig or JSONConfig as a base, depending on the Save needs.
 Here is an example implementation using a file with line separated key=value pairs for storage.
 
 
