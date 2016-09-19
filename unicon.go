@@ -297,7 +297,7 @@ func (uni *Unicon) prefixedKey(key string) string {
 
 // Debug prints out simple list of keys as returned by All()
 func (uni *Unicon) Debug() {
-	for key := range uni.All() {
-		fmt.Printf("%s = %s\n", key, uni.GetString(key))
+	for key, value := range uni.All() {
+		fmt.Printf("%s = %s\n", key, cast.ToString(value))
 	}
 }
