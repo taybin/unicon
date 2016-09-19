@@ -3,9 +3,8 @@ package unicon
 
 import (
 	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
-	"reflect"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -88,32 +87,12 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 
 // Unmarshal current configuration hierarchy into target using gonfig:
 func (uni *Unicon) Unmarshal(target interface{}) error {
-	value := reflect.Indirect(reflect.ValueOf(target))
-	typ := value.Type()
-	for i := 0; i < typ.NumField(); i++ {
-		field := typ.Field(i)
+	err := mapstructure.WeakDecode(uni.All(), target)
 
-		v := strings.TrimSpace(uni.GetString(field.Tag.Get("unicon")))
-		if v == "" {
-			continue
-		}
-
-		// Set the appropriate type.
-		switch field.Type.Kind() {
-		case reflect.Bool:
-			value.Field(i).SetBool(v != "0" && v != "false")
-		case reflect.Int:
-			newValue, err := strconv.ParseInt(v, 10, 0)
-			if err != nil {
-				return fmt.Errorf("Parse error: %s: %s", field.Tag.Get("env"), err)
-			}
-			value.Field(i).SetInt(newValue)
-		case reflect.String:
-			value.Field(i).SetString(v)
-		case reflect.Slice:
-			value.Field(i).Set(reflect.ValueOf(trimsplit(v, ",")))
-		}
+	if err != nil {
+		return err
 	}
+
 	return nil
 }
 
