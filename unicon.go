@@ -20,6 +20,8 @@ type Configurable interface {
 	GetTime(key string) time.Time
 	GetDuration(key string) time.Duration
 
+	setPrefix(ns string)
+
 	// Set a variable, nil to reset key
 	Set(string, interface{})
 	// Reset the config data to passed data, if nothing is given set it to zero value
@@ -139,18 +141,19 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 
 // Get gets the key from first store that it is found from, checks Defaults
 func (uni *Unicon) Get(key string) interface{} {
-	key = uni.prefixedKey(key)
+	nsKey := uni.prefixedKey(key)
 	// override from out values
-	if value := uni.Configurable.Get(key); value != nil {
+	if value := uni.Configurable.Get(nsKey); value != nil {
 		return value
 	}
 	// go through all in insert order until key is found
 	for _, config := range uni.Configs {
-		if value := config.Get(key); value != nil {
+		if value := config.Get(nsKey); value != nil {
 			return value
 		}
 	}
 	// if not found check the defaults as fallback
+	// Use original key since Defaults tracks prefix themselves
 	if value := uni.Defaults.Get(key); value != nil {
 		return value
 	}
@@ -284,8 +287,14 @@ func trimsplit(s, sep string) []string {
 // behind the scenes
 func (uni *Unicon) Sub(ns string) *Unicon {
 	sub := NewConfig(uni, uni.Defaults)
-	sub.prefix = uni.prefixedKey(ns)
+	prefix := uni.prefixedKey(ns)
+	sub.setPrefix(prefix)
+	sub.Defaults.setPrefix(prefix)
 	return sub
+}
+
+func (uni *Unicon) setPrefix(ns string) {
+	uni.prefix = ns
 }
 
 func (uni *Unicon) prefixedKey(key string) string {

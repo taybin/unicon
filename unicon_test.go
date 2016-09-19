@@ -116,5 +116,10 @@ var _ = Describe("Unicon", func() {
 			sub.Set("b", 5)
 			Expect(cfg.GetInt("a.b")).To(Equal(5))
 		})
+		It("should properly set/get defaults in Sub'd config", func() {
+			sub := cfg.Sub("a")
+			sub.Defaults.Set("b", 1)
+			Expect(sub.Get("b")).To(Equal(1))
+		})
 	})
 })

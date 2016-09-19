@@ -2,20 +2,24 @@ package unicon
 
 import (
 	"github.com/spf13/cast"
+	"strings"
 	"time"
 )
 
 // MemoryConfig is a simple abstraction to map[]interface{} for in process memory backed configuration
 // only implements Configurable use JsonConfig to save/load if needed
 type MemoryConfig struct {
-	data map[string]interface{}
+	data   map[string]interface{}
+	prefix string
 }
 
-// Returns a new memory backed Configurable
+// NewMemoryConfig returns a new memory backed Configurable
 // The most basic Configurable simply backed by a map[string]interface{}
 func NewMemoryConfig() *MemoryConfig {
-	cfg := &MemoryConfig{make(map[string]interface{})}
-	cfg.init()
+	cfg := &MemoryConfig{
+		data:   make(map[string]interface{}),
+		prefix: "",
+	}
 	return cfg
 }
 
@@ -37,6 +41,7 @@ func (mem *MemoryConfig) Get(key string) interface{} {
 	if mem.data == nil {
 		mem.init()
 	}
+	key = mem.prefixedKey(key)
 	return mem.data[key]
 }
 
@@ -81,5 +86,17 @@ func (mem *MemoryConfig) Set(key string, value interface{}) {
 	if mem.data == nil {
 		mem.init()
 	}
+	key = mem.prefixedKey(key)
 	mem.data[key] = value
+}
+
+func (mem *MemoryConfig) setPrefix(ns string) {
+	mem.prefix = ns
+}
+
+func (mem *MemoryConfig) prefixedKey(key string) string {
+	if mem.prefix != "" {
+		return strings.Join([]string{mem.prefix, key}, ".")
+	}
+	return key
 }
