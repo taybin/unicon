@@ -1,15 +1,15 @@
-package gonfig_test
+package unicon_test
 
 import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/taybin/gonfig"
+	. "github.com/taybin/unicon"
 )
 
 var _ = Describe("UrlConfig", func() {
 	var (
-		cfg *Gonfig
+		cfg Config
 		err error
 	)
 	BeforeEach(func() {

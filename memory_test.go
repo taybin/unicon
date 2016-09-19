@@ -1,9 +1,9 @@
-package gonfig_test
+package unicon_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/taybin/gonfig"
+	. "github.com/taybin/unicon"
 )
 
 var _ = Describe("MemoryConfig", func() {

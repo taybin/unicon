@@ -1,5 +1,5 @@
-// package gonfig provides tools for managing hierarcial configuration from multiple sources
-package gonfig
+// package unicon provides tools for managing hierarcial configuration from multiple sources
+package unicon
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ type Config interface {
 }
 
 // The Hierarchical Config that can be used to mount other configs that are searched for keys by Get
-type Gonfig struct {
+type Unicon struct {
 	// Overrides, these are checked before Configs are iterated for key
 	Configurable
 	// named configurables, these are iterated if key is not found in Config
@@ -64,12 +64,12 @@ type Gonfig struct {
 	Defaults Configurable
 }
 
-// Ensure Gonfig implements Config
-var _ Config = (*Gonfig)(nil)
+// Ensure Unicon implements Config
+var _ Config = (*Unicon)(nil)
 
 // Creates a new config that is by default backed by a MemoryConfig Configurable
 // Takes optional initial configuration and an optional defaults
-func NewConfig(initial Configurable, defaults ...Configurable) *Gonfig {
+func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 	if initial == nil {
 		initial = NewMemoryConfig()
 	} else {
@@ -79,7 +79,7 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Gonfig {
 		defaults = append(defaults, NewMemoryConfig())
 	}
 
-	return &Gonfig{
+	return &Unicon{
 		Configurable: initial,
 		Configs:      make(map[string]Configurable),
 		Defaults:     defaults[0],
@@ -87,7 +87,7 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Gonfig {
 }
 
 // Marshal current configuration hierarchy into target using gonfig:
-func (self *Gonfig) Marshal(target interface{}) error {
+func (self *Unicon) Marshal(target interface{}) error {
 	value := reflect.Indirect(reflect.ValueOf(target))
 	typ := value.Type()
 	for i := 0; i < typ.NumField(); i++ {
@@ -119,7 +119,7 @@ func (self *Gonfig) Marshal(target interface{}) error {
 
 // Resets all configs with the provided data, if no data is provided empties all stores
 // Never touches the Defaults, to reset Defaults use Config.Defaults().Reset()
-func (self *Gonfig) Reset(datas ...map[string]interface{}) {
+func (self *Unicon) Reset(datas ...map[string]interface{}) {
 	var data map[string]interface{}
 	if len(datas) > 0 {
 		data = datas[0]
@@ -144,7 +144,7 @@ func (self *Gonfig) Reset(datas ...map[string]interface{}) {
 // or traverse the hierarchy and search for "key".
 // conf.Get("key").
 // conf.Use("name") returns a nil value for non existing config named "name".
-func (self *Gonfig) Use(name string, config ...Configurable) Configurable {
+func (self *Unicon) Use(name string, config ...Configurable) Configurable {
 	if self.Configs == nil {
 		self.Configs = make(map[string]Configurable)
 	}
@@ -156,36 +156,36 @@ func (self *Gonfig) Use(name string, config ...Configurable) Configurable {
 	return self.Configs[name]
 }
 
-func (self *Gonfig) GetString(key string) string {
+func (self *Unicon) GetString(key string) string {
 	return cast.ToString(self.Get(key))
 }
 
-func (self *Gonfig) GetBool(key string) bool {
+func (self *Unicon) GetBool(key string) bool {
 	return cast.ToBool(self.Get(key))
 }
 
-func (self *Gonfig) GetInt(key string) int {
+func (self *Unicon) GetInt(key string) int {
 	return cast.ToInt(self.Get(key))
 }
 
-func (self *Gonfig) GetInt64(key string) int64 {
+func (self *Unicon) GetInt64(key string) int64 {
 	return cast.ToInt64(self.Get(key))
 }
 
-func (self *Gonfig) GetFloat64(key string) float64 {
+func (self *Unicon) GetFloat64(key string) float64 {
 	return cast.ToFloat64(self.Get(key))
 }
 
-func (self *Gonfig) GetTime(key string) time.Time {
+func (self *Unicon) GetTime(key string) time.Time {
 	return cast.ToTime(self.Get(key))
 }
 
-func (self *Gonfig) GetDuration(key string) time.Duration {
+func (self *Unicon) GetDuration(key string) time.Duration {
 	return cast.ToDuration(self.Get(key))
 }
 
 // Gets the key from first store that it is found from, checks Defaults
-func (self *Gonfig) Get(key string) interface{} {
+func (self *Unicon) Get(key string) interface{} {
 	// override from out values
 	if value := self.Configurable.Get(key); value != nil {
 		return value
@@ -204,7 +204,7 @@ func (self *Gonfig) Get(key string) interface{} {
 	return nil
 }
 
-func (self *Gonfig) Set(key string, value interface{}) {
+func (self *Unicon) Set(key string, value interface{}) {
 	self.Configurable.Set(key, value)
 }
 
@@ -221,7 +221,7 @@ func SaveConfig(config Configurable) error {
 }
 
 // Saves all mounted configurations in the hierarchy that implement the WritableConfig interface
-func (self *Gonfig) Save() error {
+func (self *Unicon) Save() error {
 	for _, config := range self.Configs {
 		if err := SaveConfig(config); err != nil {
 			return err
@@ -242,7 +242,7 @@ func LoadConfig(config Configurable) error {
 }
 
 // calls Configurable.Load() on all Configurable objects in the hierarchy.
-func (self *Gonfig) Load() error {
+func (self *Unicon) Load() error {
 	LoadConfig(self.Configurable)
 	LoadConfig(self.Defaults)
 	for _, config := range self.Configs {
@@ -261,7 +261,7 @@ func (self *Gonfig) Load() error {
 // Config.All()["a"] == "1".
 // Config.Get("a") == "1".
 // Config.Use("b".).Get("a") == "2".
-func (self *Gonfig) All() map[string]interface{} {
+func (self *Unicon) All() map[string]interface{} {
 	values := make(map[string]interface{})
 	// put defaults in values
 	for key, value := range self.Defaults.All() {

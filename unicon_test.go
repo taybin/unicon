@@ -1,16 +1,16 @@
-package gonfig_test
+package unicon_test
 
 import (
 	. "github.com/ndeanNovetta/m-go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/taybin/gonfig"
+	. "github.com/taybin/unicon"
 	"time"
 )
 
-var _ = Describe("Gonfig", func() {
+var _ = Describe("Unicon", func() {
 	Describe("Config struct", func() {
-		var cfg *Gonfig
+		var cfg *Unicon
 		BeforeEach(func() {
 			cfg = NewConfig(nil)
 		})

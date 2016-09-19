@@ -1,4 +1,4 @@
-package gonfig
+package unicon
 
 import (
 	"os"

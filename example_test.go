@@ -1,9 +1,9 @@
-package gonfig_test
+package unicon_test
 
 import (
 	"fmt"
 	. "github.com/ndeanNovetta/m-go"
-	. "github.com/taybin/gonfig"
+	. "github.com/taybin/unicon"
 	"os"
 )
 

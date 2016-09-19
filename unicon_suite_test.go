@@ -1,4 +1,4 @@
-package gonfig_test
+package unicon_test
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func TestGonfig(t *testing.T) {
 	}()
 
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Gonfig Suite")
+	RunSpecs(t, "Unicon Suite")
 	os.Remove("./config_test_1.json")
 	os.Remove("./config_test_2.json")
 	os.Remove("./config.json")
