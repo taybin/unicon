@@ -34,13 +34,13 @@ var _ = Describe("JSONConfig", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 		It("Should have the string value from a nested map", func() {
-			Expect(cfg.Get("test_object:nested_string")).To(Equal("abcd"))
+			Expect(cfg.Get("test_object.nested_string")).To(Equal("abcd"))
 		})
 		It("Should have the string value from a deeply nested map", func() {
-			Expect(cfg.Get("double_nested:nested_object:test_inner")).To(Equal("foo"))
+			Expect(cfg.Get("double_nested.nested_object.test_inner")).To(Equal("foo"))
 		})
 		It("Should have the int value from a nested map", func() {
-			Expect(cfg.Get("test_object:nested_int")).To(Equal("987"))
+			Expect(cfg.Get("test_object.nested_int")).To(Equal("987"))
 		})
 		It("Should have the values from an input array", func() {
 			Expect(cfg.Get("test_array")).To(Equal("1,2,3"))

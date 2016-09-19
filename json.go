@@ -15,7 +15,7 @@ type JSONConfig struct {
 
 func unmarshalJSONSegment(jsonSegment map[string]interface{}, segmentPath string, output map[string]interface{}) {
 	if segmentPath != "" {
-		segmentPath += ":"
+		segmentPath += "."
 	}
 
 	for k, v := range jsonSegment {
