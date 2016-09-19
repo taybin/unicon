@@ -43,7 +43,7 @@ type WritableConfig interface {
 	Save() error
 }
 
-// a Configurable that can Use other Configurables thus build a hierarchy
+// Config is a Configurable that can Use other Configurables thus build a hierarchy
 type Config interface {
 	WritableConfig
 	// Use config as name, .Use("name") without the second parameter returns
@@ -67,7 +67,7 @@ type Unicon struct {
 // Ensure Unicon implements Config
 var _ Config = (*Unicon)(nil)
 
-// Creates a new config that is by default backed by a MemoryConfig Configurable
+// NewConfig creates a new config that is by default backed by a MemoryConfig Configurable
 // Takes optional initial configuration and an optional defaults
 func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 	if initial == nil {
@@ -117,7 +117,7 @@ func (uni *Unicon) Marshal(target interface{}) error {
 	return nil
 }
 
-// Resets all configs with the provided data, if no data is provided empties all stores
+// Reset resets all configs with the provided data, if no data is provided empties all stores
 // Never touches the Defaults, to reset Defaults use Config.Defaults().Reset()
 func (uni *Unicon) Reset(datas ...map[string]interface{}) {
 	var data map[string]interface{}
@@ -156,6 +156,26 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 	return uni.Configs[name]
 }
 
+// Gets the key from first store that it is found from, checks Defaults
+func (uni *Unicon) Get(key string) interface{} {
+	// override from out values
+	if value := uni.Configurable.Get(key); value != nil {
+		return value
+	}
+	// go through all in insert order until key is found
+	for _, config := range uni.Configs {
+		if value := config.Get(key); value != nil {
+			return value
+		}
+	}
+	// if not found check the defaults as fallback
+	if value := uni.Defaults.Get(key); value != nil {
+		return value
+	}
+
+	return nil
+}
+
 func (uni *Unicon) GetString(key string) string {
 	return cast.ToString(uni.Get(key))
 }
@@ -184,31 +204,11 @@ func (uni *Unicon) GetDuration(key string) time.Duration {
 	return cast.ToDuration(uni.Get(key))
 }
 
-// Gets the key from first store that it is found from, checks Defaults
-func (uni *Unicon) Get(key string) interface{} {
-	// override from out values
-	if value := uni.Configurable.Get(key); value != nil {
-		return value
-	}
-	// go through all in insert order until key is found
-	for _, config := range uni.Configs {
-		if value := config.Get(key); value != nil {
-			return value
-		}
-	}
-	// if not found check the defaults as fallback
-	if value := uni.Defaults.Get(key); value != nil {
-		return value
-	}
-
-	return nil
-}
-
 func (uni *Unicon) Set(key string, value interface{}) {
 	uni.Configurable.Set(key, value)
 }
 
-// Save config it is of type WritableConfig, otherwise does nothing.
+// SaveConfig saves if is of type WritableConfig, otherwise does nothing.
 func SaveConfig(config Configurable) error {
 	switch t := config.(type) {
 	case WritableConfig:
@@ -220,7 +220,7 @@ func SaveConfig(config Configurable) error {
 	return nil
 }
 
-// Saves all mounted configurations in the hierarchy that implement the WritableConfig interface
+// Save saves all mounted configurations in the hierarchy that implement the WritableConfig interface
 func (uni *Unicon) Save() error {
 	for _, config := range uni.Configs {
 		if err := SaveConfig(config); err != nil {
@@ -230,7 +230,7 @@ func (uni *Unicon) Save() error {
 	return SaveConfig(uni.Configurable)
 }
 
-// Load config it is of type ReadableConfig, otherwise does nothing.
+// LoadConfig loads a config if it is of type ReadableConfig, otherwise does nothing.
 func LoadConfig(config Configurable) error {
 	switch t := config.(type) {
 	case ReadableConfig:
@@ -241,7 +241,7 @@ func LoadConfig(config Configurable) error {
 	return nil
 }
 
-// calls Configurable.Load() on all Configurable objects in the hierarchy.
+// Load calls Configurable.Load() on all Configurable objects in the hierarchy.
 func (uni *Unicon) Load() error {
 	LoadConfig(uni.Configurable)
 	LoadConfig(uni.Defaults)
@@ -251,7 +251,7 @@ func (uni *Unicon) Load() error {
 	return nil
 }
 
-// Returns a map of data from all Configurables in use
+// All returns a map of data from all Configurables in use
 // the first found instance of variable found is provided.
 // Config.Use("a", NewMemoryConfig()).
 // Config.Use("b", NewMemoryConfig()).
