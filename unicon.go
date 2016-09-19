@@ -61,6 +61,7 @@ type Unicon struct {
 	// Defaults configurable, if key is not found in the Configurable & Configurables in Config,
 	//Defaults is checked for fallback values
 	Defaults Configurable
+	prefix   string
 }
 
 // Ensure Unicon implements Config
@@ -82,6 +83,7 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 		Configurable: initial,
 		Configs:      make(map[string]Configurable),
 		Defaults:     defaults[0],
+		prefix:       "",
 	}
 }
 
@@ -137,6 +139,7 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 
 // Get gets the key from first store that it is found from, checks Defaults
 func (uni *Unicon) Get(key string) interface{} {
+	key = uni.prefixedKey(key)
 	// override from out values
 	if value := uni.Configurable.Get(key); value != nil {
 		return value
@@ -184,6 +187,7 @@ func (uni *Unicon) GetDuration(key string) time.Duration {
 }
 
 func (uni *Unicon) Set(key string, value interface{}) {
+	key = uni.prefixedKey(key)
 	uni.Configurable.Set(key, value)
 }
 
@@ -274,6 +278,21 @@ func trimsplit(s, sep string) []string {
 		trimmed[i] = strings.TrimSpace(trimmed[i])
 	}
 	return trimmed
+}
+
+// Sub returns a new Unicon but with the namespace prepended to Gets/Sets/Subs
+// behind the scenes
+func (uni *Unicon) Sub(ns string) *Unicon {
+	sub := NewConfig(uni, uni.Defaults)
+	sub.prefix = uni.prefixedKey(ns)
+	return sub
+}
+
+func (uni *Unicon) prefixedKey(key string) string {
+	if uni.prefix != "" {
+		return strings.Join([]string{uni.prefix, key}, ".")
+	}
+	return key
 }
 
 // Debug prints out simple list of keys as returned by All()
