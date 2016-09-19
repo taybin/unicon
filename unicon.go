@@ -86,8 +86,8 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 	}
 }
 
-// Marshal current configuration hierarchy into target using gonfig:
-func (uni *Unicon) Marshal(target interface{}) error {
+// Unmarshal current configuration hierarchy into target using gonfig:
+func (uni *Unicon) Unmarshal(target interface{}) error {
 	value := reflect.Indirect(reflect.ValueOf(target))
 	typ := value.Type()
 	for i := 0; i < typ.NumField(); i++ {
