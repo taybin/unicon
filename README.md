@@ -1,6 +1,7 @@
-# Gonfig
+# Unicon
 
-Gonfig is a simple hierarchial config manager for Go lang. Inspired by [nconf](https://github.com/flatiron/nconf).
+Unicon is a simple hierarchial config manager for Go lang. Inspired by [nconf](https://github.com/flatiron/nconf).
+Originally a fork from gonfig.
 
 [![Build Status](https://travis-ci.org/Nomon/gonfig.png?branch=master)](https://travis-ci.org/Nomon/gonfig)
 [![Coverage Status](https://coveralls.io/repos/Nomon/gonfig/badge.png?branch=HEAD)](https://coveralls.io/r/Nomon/gonfig?branch=HEAD)
@@ -98,7 +99,7 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
 
 ### Extending
 
-Extending Gonfig is easy using the MemoryConfig or JsonConfig as a base, depending on the Save needs.
+Extending Unicon is easy using the MemoryConfig or JsonConfig as a base, depending on the Save needs.
 Here is an example implementation using a file with line separated key=value pairs for storage.
 
 
