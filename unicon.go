@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -328,4 +329,18 @@ func (uni *Unicon) Debug() {
 	for key, value := range uni.All() {
 		fmt.Printf("%s = %s\n", key, cast.ToString(value))
 	}
+}
+
+func namespaceKey(key string, namespaces []string) string {
+	key = strings.ToLower(key)
+	re := regexp.MustCompile("[-_:]")
+	rationalized := re.ReplaceAllString(key, ".")
+
+	for _, ns := range namespaces {
+		nsWith := strings.Join([]string{ns, "."}, "")
+		if strings.HasPrefix(rationalized, nsWith) {
+			return rationalized
+		}
+	}
+	return key
 }

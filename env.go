@@ -2,7 +2,6 @@ package unicon
 
 import (
 	"os"
-	"regexp"
 	"strings"
 )
 
@@ -41,24 +40,10 @@ func (ec *EnvConfig) Load() (err error) {
 	for _, pair := range env {
 		kv := strings.Split(pair, "=")
 		if kv != nil && len(kv) >= 2 {
-			noPrefix := strings.Replace(kv[0], ec.Prefix, "", 1)
-			lowered := strings.ToLower(noPrefix)
-			namespaced := ec.renameNS(lowered)
-			ec.Set(namespaced, kv[1])
+			name := strings.Replace(kv[0], ec.Prefix, "", 1)
+			name = namespaceKey(name, ec.namespaces)
+			ec.Set(name, kv[1])
 		}
 	}
 	return nil
-}
-
-func (ec *EnvConfig) renameNS(key string) string {
-	re := regexp.MustCompile("[-_:]")
-	rationalized := re.ReplaceAllString(key, ".")
-
-	for _, ns := range ec.namespaces {
-		nsWith := strings.Join([]string{ns, "."}, "")
-		if strings.HasPrefix(rationalized, nsWith) {
-			return rationalized
-		}
-	}
-	return key
 }

@@ -41,11 +41,16 @@ func (pc *FlagSetConfig) Load() (err error) {
 		if pc.Prefix != "" && strings.HasPrefix(f.Name, pc.Prefix) {
 			name = strings.Replace(name, pc.Prefix, "", 1)
 		}
+		var value interface{}
 		if getter, ok := f.Value.(flag.Getter); ok {
+			value = getter.Get().(string)
 			pc.Set(name, getter.Get().(string))
 		} else {
-			pc.Set(name, f.Value.String())
+			value = f.Value.String()
 		}
+
+		name = namespaceKey(name, pc.namespaces)
+		pc.Set(name, value)
 	})
 	return nil
 }
