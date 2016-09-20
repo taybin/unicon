@@ -7,11 +7,13 @@
   "test_float": 12.34,
   "test_object": {
     "nested_int": 987,
-    "nested_string": "abcd"
+    "nested_string": "abcd",
+    "MixedCase": true
   },
   "double_nested": {
     "nested_object": {
       "test_inner": "foo"
     }
-  }
+  },
+  "MixedCase": true
 }

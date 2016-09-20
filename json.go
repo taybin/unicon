@@ -31,7 +31,7 @@ func unmarshalJSONSegment(jsonSegment map[string]interface{}, segmentPath string
 			}
 			output[keyWithPath] = strings.Trim(buffer.String(), ",")
 		default:
-			output[keyWithPath] = fmt.Sprintf("%v", v)
+			output[keyWithPath] = v
 		}
 	}
 }
@@ -63,17 +63,17 @@ func NewJSONConfig(path string, cfg ...Configurable) WritableConfig {
 // Attempts to load the json configuration at JSONConfig.Path
 // and Set them into the underlaying Configurable
 func (jc *JSONConfig) Load() (err error) {
-	data := make([]byte, 1024)
+	var data []byte
 	if data, err = ioutil.ReadFile(jc.Path); err != nil {
-		return err
+		return
 	}
 	out, err := unmarshalJSON(data)
 	if err != nil {
-		return err
+		return
 	}
 
 	jc.Configurable.Reset(out)
-	return nil
+	return
 }
 
 // Attempts to save the configuration from the underlaying Configurable to json file at JSONConfig.Path

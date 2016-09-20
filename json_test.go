@@ -22,13 +22,17 @@ var _ = Describe("JSONConfig", func() {
 			Expect(cfg.Get("test")).To(Equal("123"))
 		})
 		It("Should have an int variable in config", func() {
-			Expect(cfg.Get("test_number")).To(Equal("1"))
+			Expect(cfg.GetInt("test_number")).To(Equal(1))
 		})
 		It("Should have a bool variable in config", func() {
-			Expect(cfg.Get("test_bool")).To(Equal("true"))
+			Expect(cfg.Get("test_bool")).To(Equal(true))
 		})
 		It("Should have a float variable in config", func() {
-			Expect(cfg.Get("test_float")).To(Equal("12.34"))
+			Expect(cfg.Get("test_float")).To(Equal(12.34))
+		})
+		It("Should be case-insensitive", func() {
+			Expect(cfg.GetBool("mixedcase")).To(BeTrue())
+			Expect(cfg.GetBool("MIXEDCASE")).To(BeTrue())
 		})
 		It("Should not error", func() {
 			Expect(err).NotTo(HaveOccurred())
@@ -40,7 +44,10 @@ var _ = Describe("JSONConfig", func() {
 			Expect(cfg.Get("double_nested.nested_object.test_inner")).To(Equal("foo"))
 		})
 		It("Should have the int value from a nested map", func() {
-			Expect(cfg.Get("test_object.nested_int")).To(Equal("987"))
+			Expect(cfg.GetInt("test_object.nested_int")).To(Equal(987))
+		})
+		It("Should have case insensitive nesting", func() {
+			Expect(cfg.Get("test_object.mixedcase")).To(BeTrue())
 		})
 		It("Should have the values from an input array", func() {
 			Expect(cfg.Get("test_array")).To(Equal("1,2,3"))
@@ -95,9 +102,5 @@ var _ = Describe("JSONConfig", func() {
 			err = jsonConf2.Save()
 			Expect(err).ToNot(HaveOccurred())
 		})
-	})
-
-	Describe("Namespacing", func() {
-
 	})
 })

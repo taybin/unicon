@@ -2,6 +2,7 @@ package unicon
 
 import (
 	"github.com/spf13/cast"
+	"strings"
 	"time"
 )
 
@@ -26,10 +27,11 @@ func (mem *MemoryConfig) init() {
 
 // Reset if no arguments are provided Reset() re-creates the underlaying map
 func (mem *MemoryConfig) Reset(datas ...map[string]interface{}) {
+	mem.data = make(map[string]interface{})
 	if len(datas) >= 1 {
-		mem.data = datas[0]
-	} else {
-		mem.data = make(map[string]interface{})
+		for key, value := range datas[0] {
+			mem.Set(key, value)
+		}
 	}
 }
 
@@ -38,7 +40,7 @@ func (mem *MemoryConfig) Get(key string) interface{} {
 	if mem.data == nil {
 		mem.init()
 	}
-	return mem.data[key]
+	return mem.data[strings.ToLower(key)]
 }
 
 // GetString casts the value as a string.  If value is nil, it returns ""
@@ -89,5 +91,5 @@ func (mem *MemoryConfig) Set(key string, value interface{}) {
 	if mem.data == nil {
 		mem.init()
 	}
-	mem.data[key] = value
+	mem.data[strings.ToLower(key)] = value
 }
