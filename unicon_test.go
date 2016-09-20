@@ -43,7 +43,12 @@ var _ = Describe("Unicon", func() {
 			Expect(cfg.GetDefault("test_var")).Should(Equal("abc"), "Setting to memory should not override defaults")
 			Expect(cfg.Get("test_var")).Should(Equal("bca"), "Set to config should set in memory and use it over defaults")
 		})
-
+		It("Should get and set with case insensitivity", func() {
+			cfg.Set("A", 1)
+			cfg.Set("a", 2)
+			Expect(cfg.Get("A")).To(Equal(2))
+			Expect(cfg.Get("a")).To(Equal(2))
+		})
 		It("Should reset everything else but Defaults() on reset", func() {
 			cfg.SetDefault("test_var", "abc")
 			Expect(cfg.GetDefault("test_var")).Should(Equal("abc"))
@@ -117,6 +122,15 @@ var _ = Describe("Unicon", func() {
 			sub := cfg.Sub("a")
 			sub.SetDefault("b", 1)
 			Expect(sub.Get("b")).To(Equal(1))
+		})
+		It("should be case insensitive when Sub'ing", func() {
+			cfg.Set("A.B", 2)
+			cfg.Set("A.B.C", 3)
+			sub := cfg.Sub("a")
+			Expect(sub.GetInt("b")).To(Equal(2))
+			Expect(sub.GetInt("b.c")).To(Equal(3))
+			sub.Set("b", 5)
+			Expect(cfg.GetInt("a.b")).To(Equal(5))
 		})
 	})
 })
