@@ -156,7 +156,7 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 
 // Get gets the key from first store that it is found from, checks Defaults
 func (uni *Unicon) Get(key string) interface{} {
-	key = uni.prefixedKey(strings.ToLower(key))
+	key = uni.prefixedKey(key)
 	// override from out values
 	if value := uni.overrides.Get(key); value != nil {
 		return value
@@ -176,7 +176,7 @@ func (uni *Unicon) Get(key string) interface{} {
 }
 
 func (uni *Unicon) GetDefault(key string) interface{} {
-	key = uni.prefixedKey(strings.ToLower(key))
+	key = uni.prefixedKey(key)
 	if value := uni.defaults.Get(key); value != nil {
 		return value
 	}
@@ -220,12 +220,12 @@ func (uni *Unicon) GetDuration(key string) time.Duration {
 }
 
 func (uni *Unicon) Set(key string, value interface{}) {
-	key = uni.prefixedKey(strings.ToLower(key))
+	key = uni.prefixedKey(key)
 	uni.overrides.Set(key, value)
 }
 
 func (uni *Unicon) SetDefault(key string, value interface{}) {
-	key = uni.prefixedKey(strings.ToLower(key))
+	key = uni.prefixedKey(key)
 	uni.defaults.Set(key, value)
 }
 
@@ -312,11 +312,12 @@ func (uni *Unicon) All() map[string]interface{} {
 // behind the scenes
 func (uni *Unicon) Sub(ns string) *Unicon {
 	sub := NewConfig(uni, uni.defaults)
-	sub.prefix = uni.prefixedKey(strings.ToLower(ns))
+	sub.prefix = uni.prefixedKey(ns)
 	return sub
 }
 
 func (uni *Unicon) prefixedKey(key string) string {
+	key = strings.ToLower(key)
 	if uni.prefix != "" {
 		return strings.Join([]string{uni.prefix, key}, ".")
 	}
