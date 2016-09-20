@@ -12,6 +12,14 @@ import (
 // Configurable is the main interface.  Also the hierarcial configuration (Config) implements it.
 type Configurable interface {
 	Get(string) interface{}
+	GetString(key string) string
+	GetBool(key string) bool
+	GetInt(key string) int
+	GetInt64(key string) int64
+	GetFloat64(key string) float64
+	GetTime(key string) time.Time
+	GetDuration(key string) time.Duration
+
 	// Set a variable, nil to reset key
 	Set(string, interface{})
 	// Reset the config data to passed data, if nothing is given set it to zero value
@@ -59,14 +67,15 @@ type Unicon struct {
 // Ensure Unicon implements Config
 var _ Config = (*Unicon)(nil)
 
-// NewConfig creates a new config that is by default backed by a MemoryConfig Configurable
-// Takes optional initial configuration and an optional defaults
+// NewConfig creates a new config that is by default backed by a MemoryConfig
+// Configurable.  Takes optional initial configuration and an optional defaults
 func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 	if initial == nil {
 		initial = NewMemoryConfig()
 	} else {
 		LoadConfig(initial)
 	}
+
 	if len(defaults) == 0 {
 		defaults = append(defaults, NewMemoryConfig())
 	}
@@ -175,30 +184,37 @@ func (uni *Unicon) GetDefault(key string) interface{} {
 	return nil
 }
 
+// GetString casts the value as a string.  If value is nil, it returns ""
 func (uni *Unicon) GetString(key string) string {
 	return cast.ToString(uni.Get(key))
 }
 
+// GetBool casts the value as a bool.  If value is nil, it returns false
 func (uni *Unicon) GetBool(key string) bool {
 	return cast.ToBool(uni.Get(key))
 }
 
+// GetInt casts the value as an int.  If the value is nil, it returns 0
 func (uni *Unicon) GetInt(key string) int {
 	return cast.ToInt(uni.Get(key))
 }
 
+// GetInt64 casts the value as an int64.  If the value is nil, it returns 0
 func (uni *Unicon) GetInt64(key string) int64 {
 	return cast.ToInt64(uni.Get(key))
 }
 
+// GetFloat64 casts the value as a float64.  If the value is nil, it returns 0.0
 func (uni *Unicon) GetFloat64(key string) float64 {
 	return cast.ToFloat64(uni.Get(key))
 }
 
+// GetTime casts the value as a time.Time.  If the value is nil, it returns the 0 time
 func (uni *Unicon) GetTime(key string) time.Time {
 	return cast.ToTime(uni.Get(key))
 }
 
+// GetDuration casts the value as a time.Duration.  If the value is nil, it returns the 0 duration
 func (uni *Unicon) GetDuration(key string) time.Duration {
 	return cast.ToDuration(uni.Get(key))
 }
