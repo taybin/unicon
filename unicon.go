@@ -317,7 +317,6 @@ func (uni *Unicon) Sub(ns string) *Unicon {
 }
 
 func (uni *Unicon) prefixedKey(key string) string {
-	key = strings.ToLower(key)
 	if uni.prefix != "" {
 		return strings.Join([]string{uni.prefix, key}, ".")
 	}
