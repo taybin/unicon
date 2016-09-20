@@ -19,6 +19,7 @@ func randPort(start int, end int) int {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return start + rand.Intn(end-start)
 }
+
 func dummyHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"test":"abc","test_b":123}`)
 }

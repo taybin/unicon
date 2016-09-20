@@ -12,16 +12,6 @@ import (
 // Configurable is the main interface.  Also the hierarcial configuration (Config) implements it.
 type Configurable interface {
 	Get(string) interface{}
-	GetString(key string) string
-	GetBool(key string) bool
-	GetInt(key string) int
-	GetInt64(key string) int64
-	GetFloat64(key string) float64
-	GetTime(key string) time.Time
-	GetDuration(key string) time.Duration
-
-	setPrefix(ns string)
-
 	// Set a variable, nil to reset key
 	Set(string, interface{})
 	// Reset the config data to passed data, if nothing is given set it to zero value
@@ -57,12 +47,12 @@ type Config interface {
 // Unicon is the Hierarchical Config that can be used to mount other configs that are searched for keys by Get
 type Unicon struct {
 	// Overrides, these are checked before Configs are iterated for key
-	Configurable
+	overrides Configurable
 	// named configurables, these are iterated if key is not found in Config
-	Configs map[string]Configurable
+	configs map[string]Configurable
 	// Defaults configurable, if key is not found in the Configurable & Configurables in Config,
 	//Defaults is checked for fallback values
-	Defaults Configurable
+	defaults Configurable
 	prefix   string
 }
 
@@ -82,10 +72,10 @@ func NewConfig(initial Configurable, defaults ...Configurable) *Unicon {
 	}
 
 	return &Unicon{
-		Configurable: initial,
-		Configs:      make(map[string]Configurable),
-		Defaults:     defaults[0],
-		prefix:       "",
+		overrides: initial,
+		configs:   make(map[string]Configurable),
+		defaults:  defaults[0],
+		prefix:    "",
 	}
 }
 
@@ -100,21 +90,37 @@ func (uni *Unicon) Unmarshal(target interface{}) error {
 	return nil
 }
 
-// Reset resets all configs with the provided data, if no data is provided empties all stores
-// Never touches the Defaults, to reset Defaults use Config.Defaults().Reset()
+// Reset resets all configs with the provided data, if no data is provided
+// empties all stores.
+// Never touches the Defaults, to reset Defaults use Unicon.ResetDefaults()
 func (uni *Unicon) Reset(datas ...map[string]interface{}) {
 	var data map[string]interface{}
 	if len(datas) > 0 {
 		data = datas[0]
 	}
-	for _, value := range uni.Configs {
+	for _, value := range uni.configs {
 		if data != nil {
 			value.Reset(data)
 		} else {
 			value.Reset()
 		}
 	}
-	uni.Configurable.Reset(data)
+	uni.overrides.Reset(data)
+}
+
+// ResetDefaults resets just the defaults with the provided data.
+// Needed because Reset() doesn't reset the defaults.
+func (uni *Unicon) ResetDefaults(datas ...map[string]interface{}) {
+	var data map[string]interface{}
+	if len(datas) > 0 {
+		data = datas[0]
+	}
+
+	if data != nil {
+		uni.defaults.Reset(data)
+	} else {
+		uni.defaults.Reset()
+	}
 }
 
 // Use config as named config and return an already set and loaded config
@@ -128,33 +134,41 @@ func (uni *Unicon) Reset(datas ...map[string]interface{}) {
 // conf.Get("key").
 // conf.Use("name") returns a nil value for non existing config named "name".
 func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
-	if uni.Configs == nil {
-		uni.Configs = make(map[string]Configurable)
+	if uni.configs == nil {
+		uni.configs = make(map[string]Configurable)
 	}
 	if len(config) == 0 {
-		return uni.Configs[name]
+		return uni.configs[name]
 	}
-	uni.Configs[name] = config[0]
-	LoadConfig(uni.Configs[name])
-	return uni.Configs[name]
+	uni.configs[name] = config[0]
+	LoadConfig(uni.configs[name])
+	return uni.configs[name]
 }
 
 // Get gets the key from first store that it is found from, checks Defaults
 func (uni *Unicon) Get(key string) interface{} {
-	nsKey := uni.prefixedKey(key)
+	key = uni.prefixedKey(key)
 	// override from out values
-	if value := uni.Configurable.Get(nsKey); value != nil {
+	if value := uni.overrides.Get(key); value != nil {
 		return value
 	}
 	// go through all in insert order until key is found
-	for _, config := range uni.Configs {
-		if value := config.Get(nsKey); value != nil {
+	for _, config := range uni.configs {
+		if value := config.Get(key); value != nil {
 			return value
 		}
 	}
 	// if not found check the defaults as fallback
-	// Use original key since Defaults tracks prefix themselves
-	if value := uni.Defaults.Get(key); value != nil {
+	if value := uni.defaults.Get(key); value != nil {
+		return value
+	}
+
+	return nil
+}
+
+func (uni *Unicon) GetDefault(key string) interface{} {
+	key = uni.prefixedKey(key)
+	if value := uni.defaults.Get(key); value != nil {
 		return value
 	}
 
@@ -191,14 +205,18 @@ func (uni *Unicon) GetDuration(key string) time.Duration {
 
 func (uni *Unicon) Set(key string, value interface{}) {
 	key = uni.prefixedKey(key)
-	uni.Configurable.Set(key, value)
+	uni.overrides.Set(key, value)
+}
+
+func (uni *Unicon) SetDefault(key string, value interface{}) {
+	key = uni.prefixedKey(key)
+	uni.defaults.Set(key, value)
 }
 
 // SaveConfig saves if is of type WritableConfig, otherwise does nothing.
 func SaveConfig(config Configurable) error {
 	switch t := config.(type) {
 	case WritableConfig:
-
 		if err := t.Save(); err != nil {
 			return err
 		}
@@ -206,17 +224,19 @@ func SaveConfig(config Configurable) error {
 	return nil
 }
 
-// Save saves all mounted configurations in the hierarchy that implement the WritableConfig interface
+// Save saves all mounted configurations in the hierarchy that implement the
+// WritableConfig interface
 func (uni *Unicon) Save() error {
-	for _, config := range uni.Configs {
+	for _, config := range uni.configs {
 		if err := SaveConfig(config); err != nil {
 			return err
 		}
 	}
-	return SaveConfig(uni.Configurable)
+	return SaveConfig(uni.overrides)
 }
 
-// LoadConfig loads a config if it is of type ReadableConfig, otherwise does nothing.
+// LoadConfig loads a config if it is of type ReadableConfig, otherwise does
+// nothing.
 func LoadConfig(config Configurable) error {
 	switch t := config.(type) {
 	case ReadableConfig:
@@ -229,9 +249,9 @@ func LoadConfig(config Configurable) error {
 
 // Load calls Configurable.Load() on all Configurable objects in the hierarchy.
 func (uni *Unicon) Load() error {
-	LoadConfig(uni.Configurable)
-	LoadConfig(uni.Defaults)
-	for _, config := range uni.Configs {
+	LoadConfig(uni.overrides)
+	LoadConfig(uni.defaults)
+	for _, config := range uni.configs {
 		LoadConfig(config)
 	}
 	return nil
@@ -250,13 +270,13 @@ func (uni *Unicon) Load() error {
 func (uni *Unicon) All() map[string]interface{} {
 	values := make(map[string]interface{})
 	// put defaults in values
-	for key, value := range uni.Defaults.All() {
+	for key, value := range uni.defaults.All() {
 		if values[key] == nil {
 			values[key] = value
 		}
 	}
 	// put config values on top of them
-	for _, config := range uni.Configs {
+	for _, config := range uni.configs {
 		for key, value := range config.All() {
 			if values[key] == nil {
 				values[key] = value
@@ -264,7 +284,7 @@ func (uni *Unicon) All() map[string]interface{} {
 		}
 	}
 	// put overrides from uni on top of all
-	for key, value := range uni.Configurable.All() {
+	for key, value := range uni.overrides.All() {
 		if values[key] == nil {
 			values[key] = value
 		}
@@ -272,29 +292,12 @@ func (uni *Unicon) All() map[string]interface{} {
 	return values
 }
 
-// trimsplit slices s into all substrings separated by sep and returns a
-// slice of the substrings between the separator with all leading and trailing
-// white space removed, as defined by Unicode.
-func trimsplit(s, sep string) []string {
-	trimmed := strings.Split(s, sep)
-	for i := range trimmed {
-		trimmed[i] = strings.TrimSpace(trimmed[i])
-	}
-	return trimmed
-}
-
 // Sub returns a new Unicon but with the namespace prepended to Gets/Sets/Subs
 // behind the scenes
 func (uni *Unicon) Sub(ns string) *Unicon {
-	sub := NewConfig(uni, uni.Defaults)
-	prefix := uni.prefixedKey(ns)
-	sub.setPrefix(prefix)
-	sub.Defaults.setPrefix(prefix)
+	sub := NewConfig(uni, uni.defaults)
+	sub.prefix = uni.prefixedKey(ns)
 	return sub
-}
-
-func (uni *Unicon) setPrefix(ns string) {
-	uni.prefix = ns
 }
 
 func (uni *Unicon) prefixedKey(key string) string {

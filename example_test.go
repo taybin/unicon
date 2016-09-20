@@ -17,7 +17,7 @@ func ExampleHierarchy() {
 
 func ExampleDefaults() {
 	conf := NewConfig(nil) // root config
-	conf.Defaults.Reset(M{
+	conf.ResetDefaults(M{
 		"test_default":   "123",
 		"test_default_b": "321",
 	})
