@@ -9,20 +9,23 @@ import (
 // MemoryConfig is a simple abstraction to map[]interface{} for in process memory backed configuration
 // only implements Configurable use JsonConfig to save/load if needed
 type MemoryConfig struct {
-	data map[string]interface{}
+	data   map[string]interface{}
+	casing map[string]string
 }
 
 // NewMemoryConfig returns a new memory backed Configurable
 // The most basic Configurable simply backed by a map[string]interface{}
 func NewMemoryConfig() *MemoryConfig {
 	cfg := &MemoryConfig{
-		data: make(map[string]interface{}),
+		data:   make(map[string]interface{}),
+		casing: make(map[string]string),
 	}
 	return cfg
 }
 
 func (mem *MemoryConfig) init() {
 	mem.data = make(map[string]interface{})
+	mem.casing = make(map[string]string)
 }
 
 // Reset if no arguments are provided Reset() re-creates the underlaying map
@@ -83,7 +86,11 @@ func (mem *MemoryConfig) All() map[string]interface{} {
 	if mem.data == nil {
 		mem.init()
 	}
-	return mem.data
+	allMap := make(map[string]interface{})
+	for key, value := range mem.data {
+		allMap[mem.casing[key]] = value
+	}
+	return allMap
 }
 
 // Set a key to value
@@ -91,5 +98,6 @@ func (mem *MemoryConfig) Set(key string, value interface{}) {
 	if mem.data == nil {
 		mem.init()
 	}
+	mem.casing[strings.ToLower(key)] = key
 	mem.data[strings.ToLower(key)] = value
 }

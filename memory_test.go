@@ -37,7 +37,12 @@ var _ = Describe("MemoryConfig", func() {
 		Expect(cfg.Get("test")).To(Equal("def"))
 		Expect(cfg.Get("TEST")).To(Equal("def"))
 		Expect(cfg.Get("TeSt")).To(Equal("def"))
-		Expect(cfg.All()["test"]).To(Equal("def"))
+	})
+	It("Should be case preserving", func() {
+		cfg.Set("tEsT", "abc")
+		Expect(len(cfg.All())).To(Equal(1))
+		Expect(cfg.All()["tEsT"]).To(Equal("abc"))
+		Expect(cfg.All()["test"]).To(BeNil())
 		Expect(cfg.All()["TEST"]).To(BeNil())
 	})
 })
