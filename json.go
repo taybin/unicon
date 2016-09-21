@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// JSONConfig is the json configurable
 type JSONConfig struct {
 	Configurable
 	Path string
@@ -48,8 +49,9 @@ func unmarshalJSON(bytes []byte) (map[string]interface{}, error) {
 	return output, nil
 }
 
-// Returns a new WritableConfig backed by a json file at path.
-// The file does not need to exist, if it does not exist the first Save call will create it.
+// NewJSONConfig returns a new WritableConfig backed by a json file at path.
+// The file does not need to exist, if it does not exist the first Save call
+// will create it.
 func NewJSONConfig(path string, cfg ...Configurable) WritableConfig {
 	if len(cfg) == 0 {
 		cfg = append(cfg, NewMemoryConfig())
@@ -60,7 +62,7 @@ func NewJSONConfig(path string, cfg ...Configurable) WritableConfig {
 	return conf
 }
 
-// Attempts to load the json configuration at JSONConfig.Path
+// Load attempts to load the json configuration at JSONConfig.Path
 // and Set them into the underlaying Configurable
 func (jc *JSONConfig) Load() (err error) {
 	var data []byte
@@ -76,7 +78,8 @@ func (jc *JSONConfig) Load() (err error) {
 	return
 }
 
-// Attempts to save the configuration from the underlaying Configurable to json file at JSONConfig.Path
+// Save attempts to save the configuration from the underlaying Configurable
+// to json file at JSONConfig.Path
 func (jc *JSONConfig) Save() (err error) {
 	b, err := json.Marshal(jc.Configurable.All())
 	if err != nil {

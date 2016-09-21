@@ -5,16 +5,18 @@ import (
 	"net/http"
 )
 
+// URLConfig is the url configurable
 type URLConfig struct {
 	Configurable
 	url string
 }
 
-// Returns a new Configurable backed by JSON at url
+// NewURLConfig returns a new Configurable backed by JSON at url
 func NewURLConfig(url string) ReadableConfig {
 	return &URLConfig{NewMemoryConfig(), url}
 }
 
+// Load attempts to read a json file at a remote address
 func (uc *URLConfig) Load() error {
 	resp, err := http.Get(uc.url)
 	if err != nil {

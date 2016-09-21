@@ -1,4 +1,5 @@
-// Package unicon provides tools for managing hierarcial configuration from multiple sources
+// Package unicon provides tools for managing hierarcial configuration from
+// multiple sources
 package unicon
 
 import (
@@ -10,7 +11,8 @@ import (
 	"time"
 )
 
-// Configurable is the main interface.  Also the hierarcial configuration (Config) implements it.
+// Configurable is the main interface.  Also the hierarcial configuration
+// (Config) implements it.
 type Configurable interface {
 	Get(string) interface{}
 	GetString(key string) string
@@ -23,7 +25,8 @@ type Configurable interface {
 
 	// Set a variable, nil to reset key
 	Set(string, interface{})
-	// Reset the config data to passed data, if nothing is given set it to zero value
+	// Reset the config data to passed data, if nothing is given set it to zero
+	// value
 	Reset(...map[string]interface{})
 	// Return a map of all variables
 	All() map[string]interface{}
@@ -43,24 +46,26 @@ type WritableConfig interface {
 	Save() error
 }
 
-// Config is a Configurable that can Use other Configurables thus build a hierarchy
+// Config is a Configurable that can Use other Configurables thus build
+// a hierarchy
 type Config interface {
 	WritableConfig
 	// Use config as name, .Use("name") without the second parameter returns
 	// the config previously added to the hierarchy with the name.
-	// Use("name", Configurable) adds or replaces the configurable designated by "Name" in
-	// the hierarchy
+	// Use("name", Configurable) adds or replaces the configurable designated
+	// by "Name" in the hierarchy
 	Use(name string, config ...Configurable) Configurable
 }
 
-// Unicon is the Hierarchical Config that can be used to mount other configs that are searched for keys by Get
+// Unicon is the Hierarchical Config that can be used to mount other configs
+// that are searched for keys by Get
 type Unicon struct {
 	// Overrides, these are checked before Configs are iterated for key
 	overrides Configurable
 	// named configurables, these are iterated if key is not found in Config
 	configs map[string]Configurable
-	// Defaults configurable, if key is not found in the Configurable & Configurables in Config,
-	//Defaults is checked for fallback values
+	// Defaults configurable, if key is not found in the Configurable &
+	// Configurables in Config, defaults is checked for fallback values
 	defaults Configurable
 	prefix   string
 }
@@ -155,7 +160,7 @@ func (uni *Unicon) Use(name string, config ...Configurable) Configurable {
 	return uni.configs[name]
 }
 
-// Get gets the key from first store that it is found from, checks Defaults
+// Get gets the key from first store that it is found from, checks defaults
 func (uni *Unicon) Get(key string) interface{} {
 	key = uni.prefixedKey(key)
 	// override from out values
@@ -176,6 +181,8 @@ func (uni *Unicon) Get(key string) interface{} {
 	return nil
 }
 
+// GetDefault returns the default for the key, regardless of whether Set()
+// has been called for that key or not.
 func (uni *Unicon) GetDefault(key string) interface{} {
 	key = uni.prefixedKey(key)
 	if value := uni.defaults.Get(key); value != nil {
@@ -205,26 +212,33 @@ func (uni *Unicon) GetInt64(key string) int64 {
 	return cast.ToInt64(uni.Get(key))
 }
 
-// GetFloat64 casts the value as a float64.  If the value is nil, it returns 0.0
+// GetFloat64 casts the value as a float64.  If the value is nil, it
+// returns 0.0
 func (uni *Unicon) GetFloat64(key string) float64 {
 	return cast.ToFloat64(uni.Get(key))
 }
 
-// GetTime casts the value as a time.Time.  If the value is nil, it returns the 0 time
+// GetTime casts the value as a time.Time.  If the value is nil, it returns
+// the 0 time
 func (uni *Unicon) GetTime(key string) time.Time {
 	return cast.ToTime(uni.Get(key))
 }
 
-// GetDuration casts the value as a time.Duration.  If the value is nil, it returns the 0 duration
+// GetDuration casts the value as a time.Duration.  If the value is nil, it
+// returns the 0 duration
 func (uni *Unicon) GetDuration(key string) time.Duration {
 	return cast.ToDuration(uni.Get(key))
 }
 
+// Set sets a key to a particular value
 func (uni *Unicon) Set(key string, value interface{}) {
 	key = uni.prefixedKey(key)
 	uni.overrides.Set(key, value)
 }
 
+// SetDefault sets the default value, which will be looked up if no
+// other values match the key.  The default is preserved across Set()
+// and Reset() can can only be modified by SetDefault() or ResetDefaults()
 func (uni *Unicon) SetDefault(key string, value interface{}) {
 	key = uni.prefixedKey(key)
 	uni.defaults.Set(key, value)

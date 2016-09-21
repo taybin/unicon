@@ -15,7 +15,8 @@ type FlagSetConfig struct {
 	fs         *pflag.FlagSet
 }
 
-// NewFlagSetConfig creates a new FlagSetConfig and returns it as a ReadableConfig
+// NewFlagSetConfig creates a new FlagSetConfig and returns it as a
+// ReadableConfig
 func NewFlagSetConfig(fs *pflag.FlagSet, prefix string, namespaces ...string) ReadableConfig {
 	// put in lowercase
 	var lowered []string
