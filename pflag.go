@@ -3,7 +3,6 @@ package unicon
 import (
 	"flag"
 	"github.com/spf13/pflag"
-	"log"
 	"os"
 	"strings"
 )
@@ -18,26 +17,20 @@ type PflagConfig struct {
 
 // NewPflagConfig creates a new PflagConfig and returns it as a ReadableConfig
 func NewPflagConfig(prefix string, namespaces ...string) ReadableConfig {
-	// put in lowercase
-	var lowered []string
-	for _, ns := range namespaces {
-		lowered = append(lowered, strings.ToLower(ns))
-	}
-
 	cfg := &PflagConfig{
 		Configurable: NewMemoryConfig(),
 		Prefix:       prefix,
-		namespaces:   lowered,
+		namespaces:   nsSlice(namespaces),
 	}
 	return cfg
 }
 
 // Load loads all the variables from argv to the underlaying Configurable.
-// If a Prefix is provided for PflagConfig then keys are imported with the Prefix removed
-// so --test.asd=1 with Prefix 'test.' imports "asd" with value of 1
+// If a Prefix is provided for PflagConfig then keys are imported with the
+// Prefix removed so --test.asd=1 with Prefix 'test.' imports "asd" with
+// value of 1
 func (pc *PflagConfig) Load() (err error) {
 	flagset := pflag.NewFlagSet("arguments", pflag.ContinueOnError)
-	log.Println(os.Args)
 	flagset.Parse(os.Args)
 
 	flagset.VisitAll(func(f *pflag.Flag) {
@@ -45,11 +38,16 @@ func (pc *PflagConfig) Load() (err error) {
 		if pc.Prefix != "" && strings.HasPrefix(f.Name, pc.Prefix) {
 			name = strings.Replace(name, pc.Prefix, "", 1)
 		}
+
+		var value interface{}
 		if getter, ok := f.Value.(flag.Getter); ok {
-			pc.Set(name, getter.Get().(string))
+			value = getter.Get().(string)
 		} else {
-			pc.Set(name, f.Value.String())
+			value = f.Value.String()
 		}
+
+		name = namespaceKey(name, pc.namespaces)
+		pc.Set(name, value)
 	})
 	return nil
 }

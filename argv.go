@@ -10,11 +10,16 @@ import (
 type ArgvConfig struct {
 	Configurable
 	Prefix     string
+	namespaces []string
 }
 
-// Creates a new ArgvConfig and returns it as a ReadableConfig
-func NewArgvConfig(prefix string) ReadableConfig {
-	cfg := &ArgvConfig{NewMemoryConfig(), prefix}
+// NewArgvConfig creates a new ArgvConfig and returns it as a ReadableConfig
+func NewArgvConfig(prefix string, namespaces ...string) ReadableConfig {
+	cfg := &ArgvConfig{
+		Configurable: NewMemoryConfig(),
+		Prefix:       prefix,
+		namespaces:   nsSlice(namespaces),
+	}
 	return cfg
 }
 
@@ -31,9 +36,16 @@ func (ac *ArgvConfig) Load() (err error) {
 		if ac.Prefix != "" && strings.HasPrefix(f.Name, ac.Prefix) {
 			name = strings.Replace(name, ac.Prefix, "", 1)
 		}
+
+		var value interface{}
 		if getter, ok := f.Value.(flag.Getter); ok {
-			ac.Set(name, getter.Get().(string))
+			value = getter.Get().(string)
+		} else {
+			value = f.Value.String()
 		}
+
+		name = namespaceKey(name, ac.namespaces)
+		ac.Set(name, value)
 	})
 	return nil
 }

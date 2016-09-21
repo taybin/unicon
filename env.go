@@ -15,16 +15,10 @@ type EnvConfig struct {
 
 // NewEnvConfig creates a new Env config backed by a memory config
 func NewEnvConfig(prefix string, namespaces ...string) ReadableConfig {
-	// put in lowercase
-	var lowered []string
-	for _, ns := range namespaces {
-		lowered = append(lowered, strings.ToLower(ns))
-	}
-
 	cfg := &EnvConfig{
 		Configurable: NewMemoryConfig(),
 		Prefix:       prefix,
-		namespaces:   lowered,
+		namespaces:   nsSlice(namespaces),
 	}
 	cfg.Load()
 	return cfg
