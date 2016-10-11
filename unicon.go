@@ -325,8 +325,11 @@ func (uni *Unicon) All() map[string]interface{} {
 // Sub returns a new Unicon but with the namespace prepended to Gets/Sets/Subs
 // behind the scenes
 func (uni *Unicon) Sub(ns string) *Unicon {
+	oldPrefix := uni.prefix
+	uni.prefix = ""
 	sub := NewConfig(uni, uni.defaults)
 	sub.prefix = uni.prefixedKey(ns)
+	uni.prefix = oldPrefix
 	return sub
 }
 

@@ -132,5 +132,11 @@ var _ = Describe("Unicon", func() {
 			sub.Set("b", 5)
 			Expect(cfg.GetInt("a.b")).To(Equal(5))
 		})
+		It("should allow sub-subbing", func() {
+			cfg.Set("A.B.C", 3)
+			suba := cfg.Sub("A")
+			subb := suba.Sub("B")
+			Expect(subb.GetInt("C")).To(Equal(3))
+		})
 	})
 })
