@@ -1,11 +1,9 @@
 package unicon
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"strings"
+	"strconv"
 )
 
 // JSONConfig is the json configurable
@@ -26,11 +24,17 @@ func unmarshalJSONSegment(jsonSegment map[string]interface{}, segmentPath string
 		case map[string]interface{}:
 			unmarshalJSONSegment(v, keyWithPath, output)
 		case []interface{}:
-			var buffer bytes.Buffer
-			for _, sVal := range v {
-				buffer.WriteString(fmt.Sprintf("%v,", sVal))
+			var arrayKey string
+			for i, sVal := range v {
+				arrayKey = keyWithPath + "[" + strconv.Itoa(i) + "]"
+				switch sVal := sVal.(type) {
+				case map[string]interface{}:
+					unmarshalJSONSegment(sVal, arrayKey, output)
+				default:
+					output[arrayKey] = sVal
+				}
 			}
-			output[keyWithPath] = strings.Trim(buffer.String(), ",")
+			output[keyWithPath+".length"] = len(v)
 		default:
 			output[keyWithPath] = v
 		}

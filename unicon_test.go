@@ -67,7 +67,7 @@ var _ = Describe("Unicon", func() {
 			err := cfg.Save()
 			Expect(err).ToNot(HaveOccurred())
 			cfg.Reset()
-			Expect(len(cfg.Use("json1").All()) == 0).To(BeTrue())
+			Expect(cfg.Use("json1").All()).To(HaveLen(0))
 			err = cfg.Load()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cfg.Use("json1").Get("asd")).To(Equal("321"))

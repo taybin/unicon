@@ -50,7 +50,10 @@ var _ = Describe("JSONConfig", func() {
 			Expect(cfg.Get("test_object.mixedcase")).To(BeTrue())
 		})
 		It("Should have the values from an input array", func() {
-			Expect(cfg.Get("test_array")).To(Equal("1,2,3"))
+			Expect(cfg.GetInt("test_array[0].id")).To(Equal(1))
+			Expect(cfg.GetString("test_array[1].id")).To(Equal("2"))
+			Expect(cfg.Get("test_array[2].id")).To(Equal(3.0))
+			Expect(cfg.Get("test_array.length")).To(Equal(3))
 		})
 	})
 

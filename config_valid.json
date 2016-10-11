@@ -2,7 +2,11 @@
   "test":"123",
   "test_b":"abc",
   "test_number":1,
-  "test_array":[1,2,3],
+  "test_array":[
+    {"id": 1},
+    {"id": 2},
+    {"id": 3}
+  ],
   "test_bool": true,
   "test_float": 12.34,
   "test_object": {
