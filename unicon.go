@@ -250,8 +250,17 @@ func (uni *Unicon) BulkSet(items map[string]interface{}) {
 // other values match the key.  The default is preserved across Set()
 // and Reset() can can only be modified by SetDefault() or ResetDefaults()
 func (uni *Unicon) SetDefault(key string, value interface{}) {
-	key = uni.prefixedKey(key)
-	uni.defaults.Set(key, value)
+	out := make(map[string]interface{})
+	unmarshal(value, key, out)
+	uni.BulkSetDefault(out)
+}
+
+// BulkSetDefault overwrites the defaults with items in the provided map
+func (uni *Unicon) BulkSetDefault(items map[string]interface{}) {
+	for k, v := range items {
+		k = uni.prefixedKey(k)
+		uni.defaults.Set(k, v)
+	}
 }
 
 // SaveConfig saves if is of type WritableConfig, otherwise does nothing.

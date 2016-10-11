@@ -163,5 +163,30 @@ var _ = Describe("Unicon", func() {
 			Expect(cfg.GetInt("A[0]")).To(Equal(123))
 			Expect(cfg.GetInt("A[1]")).To(Equal(321))
 		})
+		It("should support bulk setting of defaults", func() {
+			cfg.SetDefault("foo", "oldvalue")
+			cfg.SetDefault("baz", "fuzz")
+
+			bulk := make(map[string]interface{})
+			bulk["foo"] = "bar"
+			bulk["yes"] = true
+			cfg.BulkSetDefault(bulk)
+
+			Expect(cfg.GetString("baz")).To(Equal("fuzz"))
+			Expect(cfg.GetString("foo")).To(Equal("bar"))
+			Expect(cfg.GetBool("yes")).To(Equal(true))
+		})
+		It("Should unmarshal maps when they are set as defaults", func() {
+			dict := make(map[string]interface{})
+			dict["test"] = "123"
+			cfg.SetDefault("A", dict)
+			Expect(cfg.GetString("A.test")).To(Equal("123"))
+		})
+		It("Should unmarshal arrays when they are set as defaults", func() {
+			cfg.SetDefault("A", []interface{}{"123", "321"})
+			Expect(cfg.GetInt("A.length")).To(Equal(2))
+			Expect(cfg.GetInt("A[0]")).To(Equal(123))
+			Expect(cfg.GetInt("A[1]")).To(Equal(321))
+		})
 	})
 })
