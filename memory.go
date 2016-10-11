@@ -101,3 +101,10 @@ func (mem *MemoryConfig) Set(key string, value interface{}) {
 	mem.casing[strings.ToLower(key)] = key
 	mem.data[strings.ToLower(key)] = value
 }
+
+// BulkSet overwrites the overrides with items in the provided map
+func (mem *MemoryConfig) BulkSet(items map[string]interface{}) {
+	for k, v := range items {
+		mem.Set(k, v)
+	}
+}

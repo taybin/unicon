@@ -24,6 +24,8 @@ type Configurable interface {
 
 	// Set a variable, nil to reset key
 	Set(string, interface{})
+	// Overwrite items with items from map
+	BulkSet(map[string]interface{})
 	// Reset the config data to passed data, if nothing is given set it to zero
 	// value
 	Reset(...map[string]interface{})
@@ -231,8 +233,17 @@ func (uni *Unicon) GetDuration(key string) time.Duration {
 
 // Set sets a key to a particular value
 func (uni *Unicon) Set(key string, value interface{}) {
-	key = uni.prefixedKey(key)
-	uni.overrides.Set(key, value)
+	out := make(map[string]interface{})
+	unmarshal(value, key, out)
+	uni.BulkSet(out)
+}
+
+// BulkSet overwrites the overrides with items in the provided map
+func (uni *Unicon) BulkSet(items map[string]interface{}) {
+	for k, v := range items {
+		k = uni.prefixedKey(k)
+		uni.overrides.Set(k, v)
+	}
 }
 
 // SetDefault sets the default value, which will be looked up if no

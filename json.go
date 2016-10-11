@@ -3,42 +3,12 @@ package unicon
 import (
 	"encoding/json"
 	"io/ioutil"
-	"strconv"
 )
 
 // JSONConfig is the json configurable
 type JSONConfig struct {
 	Configurable
 	Path string
-}
-
-func unmarshalJSONSegment(jsonSegment map[string]interface{}, segmentPath string, output map[string]interface{}) {
-	if segmentPath != "" {
-		segmentPath += "."
-	}
-
-	for k, v := range jsonSegment {
-		keyWithPath := segmentPath + k
-
-		switch v := v.(type) {
-		case map[string]interface{}:
-			unmarshalJSONSegment(v, keyWithPath, output)
-		case []interface{}:
-			var arrayKey string
-			for i, sVal := range v {
-				arrayKey = keyWithPath + "[" + strconv.Itoa(i) + "]"
-				switch sVal := sVal.(type) {
-				case map[string]interface{}:
-					unmarshalJSONSegment(sVal, arrayKey, output)
-				default:
-					output[arrayKey] = sVal
-				}
-			}
-			output[keyWithPath+".length"] = len(v)
-		default:
-			output[keyWithPath] = v
-		}
-	}
 }
 
 func unmarshalJSON(bytes []byte) (map[string]interface{}, error) {
@@ -48,7 +18,7 @@ func unmarshalJSON(bytes []byte) (map[string]interface{}, error) {
 	}
 
 	output := make(map[string]interface{})
-	unmarshalJSONSegment(out, "", output)
+	unmarshalMap(out, "", output)
 
 	return output, nil
 }
