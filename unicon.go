@@ -321,23 +321,17 @@ func (uni *Unicon) All() map[string]interface{} {
 	values := make(map[string]interface{})
 	// put defaults in values
 	for key, value := range uni.defaults.All() {
-		if values[key] == nil {
-			values[key] = value
-		}
+		values[key] = value
 	}
 	// put config values on top of them
 	for _, config := range uni.configs {
 		for key, value := range config.All() {
-			if values[key] == nil {
-				values[key] = value
-			}
+			values[key] = value
 		}
 	}
 	// put overrides from uni on top of all
 	for key, value := range uni.overrides.All() {
-		if values[key] == nil {
-			values[key] = value
-		}
+		values[key] = value
 	}
 	return values
 }

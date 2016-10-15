@@ -87,6 +87,13 @@ var _ = Describe("Unicon", func() {
 			}
 			Expect(i).To(Equal(3))
 		})
+		It("Should override defaults when returning All()", func() {
+			cfg.SetDefault("abc", 123)
+			cfg.Set("abc", 234)
+			for _, value := range cfg.All() {
+				Expect(value).To(Equal(234))
+			}
+		})
 		It("Should be able to use Config objects in the hierarchy", func() {
 			cfg.Use("test", NewConfig(nil))
 			cfg.Set("test_123", "321test")
