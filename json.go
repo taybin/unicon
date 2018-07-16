@@ -26,7 +26,7 @@ func unmarshalJSON(bytes []byte) (map[string]interface{}, error) {
 // NewJSONConfig returns a new WritableConfig backed by a json file at path.
 // The file does not need to exist, if it does not exist the first Save call
 // will create it.
-func NewJSONConfig(path string, cfg ...Configurable) WritableConfig {
+func NewJSONConfig(path string, cfg ...Configurable) *JSONConfig {
 	if len(cfg) == 0 {
 		cfg = append(cfg, NewMemoryConfig())
 	}
