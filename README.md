@@ -66,7 +66,7 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
   conf.Set("always", true);
 
   // use commandline variables myapp.*, ie --myapp-rules
-  conf.Use("argv"), NewNewArgvConfig("myapp.*"))
+  conf.Use("argv", NewNewArgvConfig("myapp.*"))
 
   // use env variables MYAPP_*
   conf.Use("env", NewEnvConfig("MYAPP_"))
