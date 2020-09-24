@@ -3,11 +3,10 @@
 Unicon is a simple hierarchial config manager for Go lang. Inspired by [nconf](https://github.com/flatiron/nconf).
 Originally a fork from gonfig.
 
-[![Build Status](https://travis-ci.org/Nomon/gonfig.png?branch=master)](https://travis-ci.org/Nomon/gonfig)
-[![Coverage Status](https://coveralls.io/repos/Nomon/gonfig/badge.png?branch=HEAD)](https://coveralls.io/r/Nomon/gonfig?branch=HEAD)
-## Docs
+![Build Status](https://github.com/taybin/unicon/workflows/Go/badge.svg)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/taybin/unicon)](https://pkg.go.dev/github.com/taybin/unicon)
 
-Available via: [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/Nomon/gonfig)
+## Docs
 
 ### Api
 
@@ -147,13 +146,12 @@ func (self *KVFileConfig) Save() (err error) {
 }
 ```
 
-
 ## License
 
 ```text
 The MIT License (MIT)
 
-Copyright (c) 2016 Taybin Rutkin
+Copyright (c) 2016-2020 Taybin Rutkin
 Copyright (c) 2013 Matti Savolainen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
