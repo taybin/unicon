@@ -1,11 +1,11 @@
 package unicon_test
 
 import (
-	. "github.com/ndeanNovetta/m-go"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/taybin/unicon"
-	"time"
 )
 
 var _ = Describe("Unicon", func() {
@@ -101,12 +101,12 @@ var _ = Describe("Unicon", func() {
 		})
 		It("should prefer using defaults deeper in hierarchy (reverse order to normal fetch.)", func() {
 			deeper := NewConfig(nil)
-			deeper.ResetDefaults(M{
+			deeper.ResetDefaults(map[string]interface{}{
 				"test":  "123",
 				"testb": "321",
 			})
 			cfg.Use("test", deeper)
-			cfg.ResetDefaults(M{
+			cfg.ResetDefaults(map[string]interface{}{
 				"test": "333",
 			})
 			Expect(cfg.GetString("test")).To(Equal("123"))
