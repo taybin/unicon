@@ -16,6 +16,7 @@ var _ = Describe("FlagSetConfig", func() {
 		fs := pflag.NewFlagSet("arguments", pflag.ContinueOnError)
 		cfg = NewFlagSetConfig(fs, "")
 		err = cfg.Load()
+		Expect(err).ToNot(HaveOccurred())
 	})
 	It("Should load variables from commandline", func() {
 		Expect(len(cfg.All()) >= 0).To(BeTrue())

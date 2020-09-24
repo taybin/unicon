@@ -15,6 +15,7 @@ var _ = Describe("JSONConfig", func() {
 	BeforeEach(func() {
 		cfg = NewJSONConfig("./config_valid.json")
 		err = cfg.Load()
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("When the JSON config marshals properly", func() {

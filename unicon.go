@@ -4,10 +4,11 @@ package unicon
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 	"strings"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 )
 
 // Configurable is the main interface.  Also the hierarcial configuration

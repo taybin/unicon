@@ -1,11 +1,12 @@
 package unicon_test
 
 import (
+	"os"
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/taybin/unicon"
-	"os"
-	"strings"
 )
 
 var _ = Describe("EnvConfig", func() {
@@ -16,6 +17,7 @@ var _ = Describe("EnvConfig", func() {
 	BeforeEach(func() {
 		cfg = NewEnvConfig("")
 		err = cfg.Load()
+		Expect(err).ToNot(HaveOccurred())
 	})
 	It("Should load variables from environment", func() {
 		Expect(len(cfg.All()) > 0).To(BeTrue())

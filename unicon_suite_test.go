@@ -2,13 +2,14 @@ package unicon_test
 
 import (
 	"fmt"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"math/rand"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -29,7 +30,8 @@ func TestGonfig(t *testing.T) {
 	HttpPort = randPort(1024, 30000)
 	http.HandleFunc("/", dummyHandler)
 	go func() {
-		http.ListenAndServe(fmt.Sprintf(":%d", HttpPort), nil)
+		err := http.ListenAndServe(fmt.Sprintf(":%d", HttpPort), nil)
+		Expect(err).ToNot(HaveOccurred())
 	}()
 
 	RegisterFailHandler(Fail)

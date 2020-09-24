@@ -2,8 +2,9 @@ package unicon
 
 import (
 	"flag"
-	"github.com/spf13/pflag"
 	"strings"
+
+	"github.com/spf13/pflag"
 )
 
 // FlagSetConfig can be used to read arguments in the posix flag style

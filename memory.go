@@ -1,9 +1,10 @@
 package unicon
 
 import (
-	"github.com/spf13/cast"
 	"strings"
 	"time"
+
+	"github.com/spf13/cast"
 )
 
 // MemoryConfig is a simple abstraction to map[]interface{} for in process memory backed configuration
