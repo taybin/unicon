@@ -3,8 +3,10 @@
 Unicon is a simple hierarchial config manager for Go lang. Inspired by [nconf](https://github.com/flatiron/nconf).
 Originally a fork from gonfig.
 
-![Build Status](https://github.com/taybin/unicon/workflows/Go/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/taybin/unicon)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/taybin/unicon/Go/master)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/taybin/unicon)](https://pkg.go.dev/github.com/taybin/unicon)
+![GitHub](https://img.shields.io/github/license/taybin/unicon)
 
 ## Docs
 
@@ -55,7 +57,6 @@ type Config struct {
 
 For more examples check out [example_test.go](https://github.com/Nomon/gonfig/blob/master/example_test.go)
 
-
 ```go
   // Create a new root node for our hierarchical configuration
   conf := NewConfig(nil)
@@ -100,7 +101,6 @@ For more examples check out [example_test.go](https://github.com/Nomon/gonfig/bl
 
 Extending Unicon is easy using the MemoryConfig or JSONConfig as a base, depending on the Save needs.
 Here is an example implementation using a file with line separated key=value pairs for storage.
-
 
 ```go
 type KVFileConfig struct {
